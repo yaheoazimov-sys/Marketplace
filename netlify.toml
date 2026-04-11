@@ -1,0 +1,15 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NEXT_PUBLIC_FIREBASE_API_KEY = "AIzaSyAVtOFYZ_0r2pzJI1vvpped1wwCQtjOwiY"
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN = "yahyoshopai.firebaseapp.com"
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID = "yahyoshopai"
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET = "yahyoshopai.firebasestorage.app"
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID = "1054569171754"
+  NEXT_PUBLIC_FIREBASE_APP_ID = "1:1054569171754:web:c534e4584fb2d5ba7a6c53"
+  NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID = "G-P5B4KM2TZB"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
