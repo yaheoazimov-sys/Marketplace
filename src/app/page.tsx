@@ -9,11 +9,13 @@ import styles from './home.module.css';
 const CATEGORIES = [
   { id: 'all', label: 'All', emoji: '✨' },
   { id: 'electronics', label: 'Electronics', emoji: '💻' },
+  { id: 'clothing', label: 'Clothing', emoji: '👔' },
   { id: 'fashion', label: 'Fashion', emoji: '👕' },
   { id: 'food', label: 'Food & Drinks', emoji: '🍔' },
   { id: 'handmade', label: 'Handmade', emoji: '🛍️' },
   { id: 'home', label: 'Home', emoji: '🏠' },
   { id: 'sports', label: 'Sports', emoji: '⚽' },
+  { id: 'cars', label: 'Cars & Auto', emoji: '🚗' },
 ];
 
 const SORT_OPTIONS = [
