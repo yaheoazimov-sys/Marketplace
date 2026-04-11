@@ -7,48 +7,74 @@ import Navbar from '@/components/Navbar';
 import styles from './home.module.css';
 
 const CATEGORIES = [
-  { id: 'all', label: 'All', emoji: '✨' },
-  { id: 'electronics', label: 'Electronics', emoji: '💻' },
-  { id: 'clothing', label: 'Clothing', emoji: '👔' },
-  { id: 'fashion', label: 'Fashion', emoji: '👕' },
-  { id: 'food', label: 'Food & Drinks', emoji: '🍔' },
-  { id: 'handmade', label: 'Handmade', emoji: '🛍️' },
-  { id: 'home', label: 'Home', emoji: '🏠' },
-  { id: 'sports', label: 'Sports', emoji: '⚽' },
-  { id: 'cars', label: 'Cars & Auto', emoji: '🚗' },
+  { id: 'all', label: 'All Products' },
+  { id: 'clothing', label: 'Clothing' },
+  { id: 'fashion', label: 'Accessories' },
+  { id: 'electronics', label: 'Electronics' },
+  { id: 'cars', label: 'Cars & Auto' },
+  { id: 'sports', label: 'Sports' },
+  { id: 'home', label: 'Home' },
+  { id: 'food', label: 'Food' },
+  { id: 'handmade', label: 'Handmade' },
 ];
 
-const SORT_OPTIONS = [
-  { value: 'default', label: 'Featured' },
-  { value: 'price_asc', label: 'Price: Low to High' },
-  { value: 'price_desc', label: 'Price: High to Low' },
-  { value: 'rating', label: 'Top Rated' },
+const HERO_SLIDES = [
+  {
+    title: "Men's Jacket",
+    brand: 'NEW COLLECTION',
+    price: '$89.95',
+    cta: 'SHOP NOW',
+    image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80',
+    bg: 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)',
+  },
+  {
+    title: "Premium Sneakers",
+    brand: 'TRENDING NOW',
+    price: '$129.99',
+    cta: 'SHOP NOW',
+    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80',
+    bg: 'linear-gradient(135deg, #1e2a3a 0%, #0f1a2a 100%)',
+  },
+  {
+    title: "Leather Bag",
+    brand: 'BEST SELLER',
+    price: '$189.00',
+    cta: 'SHOP NOW',
+    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80',
+    bg: 'linear-gradient(135deg, #2a1a0a 0%, #1a0f00 100%)',
+  },
 ];
+
+const BRANDS = ['H&M', 'D&G', 'DKNY', 'TOPMAN', 'ZARA', 'MARKS&S'];
 
 export default function Home() {
-  const { items, addItem } = useCart();
+  const { addItem } = useCart();
   const [products, setProducts] = useState<any[]>([]);
+  const [featured, setFeatured] = useState<any[]>([]);
   const [filtered, setFiltered] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
-  const [sort, setSort] = useState('default');
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('default');
+  const [slide, setSlide] = useState(0);
   const [addedId, setAddedId] = useState<string | null>(null);
 
-  const cartCount = items.reduce((s, i) => s + i.quantity, 0);
   useEffect(() => {
     fetch('/api/products')
       .then(r => r.json())
       .then(d => {
-        const list = d.products || FALLBACK;
+        const list: any[] = d.products || FALLBACK;
         setProducts(list);
-        setFiltered(list);
+        setFeatured(list.slice(0, 5));
       })
-      .catch(() => {
-        setProducts(FALLBACK);
-        setFiltered(FALLBACK);
-      })
+      .catch(() => { setProducts(FALLBACK); setFeatured(FALLBACK.slice(0, 5)); })
       .finally(() => setLoading(false));
+  }, []);
+
+  // Auto-advance hero
+  useEffect(() => {
+    const t = setInterval(() => setSlide(s => (s + 1) % HERO_SLIDES.length), 4000);
+    return () => clearInterval(t);
   }, []);
 
   const applyFilters = useCallback(() => {
@@ -63,80 +89,110 @@ export default function Home() {
 
   useEffect(() => { applyFilters(); }, [applyFilters]);
 
-  const handleAddToCart = (e: React.MouseEvent, p: any) => {
+  const handleAdd = (e: React.MouseEvent, p: any) => {
     e.preventDefault();
     addItem({ id: p.id, title: p.title, price: p.price, quantity: 1, image: p.images?.[0], sellerId: p.sellerId });
     setAddedId(p.id);
     setTimeout(() => setAddedId(null), 1500);
   };
 
+  const cur = HERO_SLIDES[slide];
+
   return (
     <div className={styles.page}>
       <Navbar search={search} onSearch={setSearch} />
 
-      {/* Hero */}
-      <section className={styles.hero}>
-        <div className={styles.heroContent}>
-          <div className={styles.heroBadge}>✨ New arrivals every week</div>
-          <h1 className={styles.heroTitle}>
-            Discover Products<br />You'll <span>Love</span>
-          </h1>
-          <p className={styles.heroSub}>
-            Handpicked items from top sellers — fashion, tech, food, and handmade crafts.
-          </p>
-          <div className={styles.heroActions}>
-            <Link href="/auth/signup" className={styles.heroCta}>Start Shopping</Link>
-            <Link href="#catalog" className={styles.heroSecondary}>Browse Catalog ↓</Link>
+      {/* ── Hero Slider ── */}
+      <section className={styles.hero} style={{ background: cur.bg }}>
+        <div className={styles.heroInner}>
+          <div className={styles.heroImg}>
+            <img src={cur.image} alt={cur.title} />
+          </div>
+          <div className={styles.heroText}>
+            <p className={styles.heroBrand}>{cur.brand}</p>
+            <h1 className={styles.heroTitle}>{cur.title}</h1>
+            <p className={styles.heroPrice}>{cur.price}</p>
+            <p className={styles.heroDesc}>Premium quality, modern design. Limited stock available.</p>
+            <Link href="#catalog" className={styles.heroCta}>{cur.cta}</Link>
           </div>
         </div>
-        <div className={styles.heroStats}>
-          <div className={styles.stat}><strong>22+</strong><span>Products</span></div>
-          <div className={styles.statDivider} />
-          <div className={styles.stat}><strong>7</strong><span>Categories</span></div>
-          <div className={styles.statDivider} />
-          <div className={styles.stat}><strong>4.8★</strong><span>Avg Rating</span></div>
+        <button className={`${styles.slideBtn} ${styles.slidePrev}`} onClick={() => setSlide(s => (s - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}>‹</button>
+        <button className={`${styles.slideBtn} ${styles.slideNext}`} onClick={() => setSlide(s => (s + 1) % HERO_SLIDES.length)}>›</button>
+        <div className={styles.slideDots}>
+          {HERO_SLIDES.map((_, i) => <button key={i} className={`${styles.dot} ${i === slide ? styles.dotActive : ''}`} onClick={() => setSlide(i)} />)}
         </div>
       </section>
 
-      {/* Catalog */}
-      <main className={styles.catalog} id="catalog">
-        {/* Category Pills */}
-        <div className={styles.categoryRow}>
+      {/* ── Banners ── */}
+      <section className={styles.banners}>
+        <div className={styles.banner} style={{ background: 'linear-gradient(135deg, #1a1a1a, #333)' }}>
+          <div>
+            <span className={styles.bannerBrand}>SHOP</span>
+            <h2 className={styles.bannerTitle}><span className={styles.bannerRed}>BIG</span> SALE</h2>
+            <p className={styles.bannerSub}>UP TO 50% OFF</p>
+          </div>
+          <img src="https://images.unsplash.com/photo-1523205771623-e0faa4d2813d?w=300&q=80" alt="sale" className={styles.bannerImg} />
+        </div>
+        <div className={styles.banner} style={{ background: 'linear-gradient(135deg, #2a3a4a, #1a2a3a)' }}>
+          <div>
+            <p className={styles.bannerSub}>STAY UPDATED</p>
+            <h2 className={styles.bannerTitle}>FASHION UPDATES<br /><span style={{ fontSize: '1rem', fontWeight: 400 }}>ANYWHERE</span></h2>
+          </div>
+          <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=300&q=80" alt="fashion" className={styles.bannerImg} />
+        </div>
+      </section>
+
+      {/* ── Featured Products ── */}
+      <section className={styles.featured}>
+        <div className={styles.sectionHead}>
+          <span className={styles.sectionTitle}>FEATURED PRODUCTS</span>
+        </div>
+        <div className={styles.featuredGrid}>
+          {(loading ? Array(5).fill(null) : featured).map((p, i) =>
+            p ? (
+              <Link href={`/products/${p.id}`} key={p.id} className={styles.featCard}>
+                <div className={styles.featImg}>
+                  <img src={p.images?.[0] || p.image} alt={p.title} loading="lazy" />
+                </div>
+                <div className={styles.featBody}>
+                  <p className={styles.featName}>{p.title}</p>
+                  <div className={styles.featFooter}>
+                    <span className={styles.featPrice}>${Number(p.price).toFixed(2)}</span>
+                    <button className={`${styles.featAddBtn} ${addedId === p.id ? styles.featAdded : ''}`} onClick={e => handleAdd(e, p)}>
+                      {addedId === p.id ? '✓' : '🛒'}
+                    </button>
+                  </div>
+                </div>
+              </Link>
+            ) : <div key={i} className={styles.featSkeleton} />
+          )}
+        </div>
+      </section>
+
+      {/* ── Catalog ── */}
+      <section className={styles.catalog} id="catalog">
+        {/* Category nav */}
+        <div className={styles.catNav}>
           {CATEGORIES.map(c => (
-            <button
-              key={c.id}
-              className={`${styles.categoryPill} ${activeCategory === c.id ? styles.categoryPillActive : ''}`}
-              onClick={() => setActiveCategory(c.id)}
-            >
-              {c.emoji} {c.label}
+            <button key={c.id} className={`${styles.catBtn} ${activeCategory === c.id ? styles.catBtnActive : ''}`} onClick={() => setActiveCategory(c.id)}>
+              {c.label}
             </button>
           ))}
-        </div>
-
-        {/* Toolbar */}
-        <div className={styles.toolbar}>
-          <p className={styles.resultCount}>
-            {loading ? 'Loading...' : `${filtered.length} products`}
-          </p>
-          <select
-            className={styles.sortSelect}
-            value={sort}
-            onChange={e => setSort(e.target.value)}
-          >
-            {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          <select className={styles.sortSelect} value={sort} onChange={e => setSort(e.target.value)}>
+            <option value="default">Sort: Featured</option>
+            <option value="price_asc">Price ↑</option>
+            <option value="price_desc">Price ↓</option>
+            <option value="rating">Top Rated</option>
           </select>
         </div>
 
         {/* Grid */}
         {loading ? (
-          <div className={styles.skeletonGrid}>
-            {Array.from({ length: 8 }).map((_, i) => <div key={i} className={styles.skeleton} />)}
+          <div className={styles.grid}>
+            {Array(8).fill(null).map((_, i) => <div key={i} className={styles.skeleton} />)}
           </div>
         ) : filtered.length === 0 ? (
-          <div className={styles.empty}>
-            <span>😕</span>
-            <p>No products found</p>
-          </div>
+          <div className={styles.empty}><span>😕</span><p>No products found</p></div>
         ) : (
           <div className={styles.grid}>
             {filtered.map(p => (
@@ -144,46 +200,67 @@ export default function Home() {
                 <div className={styles.cardImg}>
                   <img src={p.images?.[0] || p.image} alt={p.title} loading="lazy" />
                   {p.stock === 0 && <div className={styles.outOfStock}>Out of stock</div>}
-                </div>
-                <div className={styles.cardBody}>
-                  <p className={styles.cardCategory}>{CATEGORIES.find(c => c.id === p.categoryId)?.emoji} {p.categoryId}</p>
-                  <h3 className={styles.cardTitle}>{p.title}</h3>
-                  {p.rating && (
-                    <div className={styles.cardRating}>
-                      <span className={styles.stars}>{'★'.repeat(Math.round(p.rating))}{'☆'.repeat(5 - Math.round(p.rating))}</span>
-                      <span className={styles.ratingNum}>{p.rating} ({p.reviewCount})</span>
-                    </div>
-                  )}
-                  <div className={styles.cardFooter}>
-                    <span className={styles.price}>${Number(p.price).toFixed(2)}</span>
-                    <button
-                      className={`${styles.addBtn} ${addedId === p.id ? styles.addBtnDone : ''}`}
-                      onClick={e => handleAddToCart(e, p)}
-                      disabled={p.stock === 0}
-                    >
-                      {addedId === p.id ? '✓' : '+'}
+                  <div className={styles.cardOverlay}>
+                    <button className={`${styles.overlayBtn} ${addedId === p.id ? styles.overlayBtnDone : ''}`} onClick={e => handleAdd(e, p)} disabled={p.stock === 0}>
+                      {addedId === p.id ? '✓ Added' : '+ Add to Cart'}
                     </button>
                   </div>
+                </div>
+                <div className={styles.cardBody}>
+                  <p className={styles.cardName}>{p.title}</p>
+                  {p.rating && (
+                    <div className={styles.cardRating}>
+                      {'★'.repeat(Math.round(p.rating))}{'☆'.repeat(5 - Math.round(p.rating))}
+                      <span> ({p.reviewCount})</span>
+                    </div>
+                  )}
+                  <p className={styles.cardPrice}>${Number(p.price).toFixed(2)}</p>
                 </div>
               </Link>
             ))}
           </div>
         )}
-      </main>
+      </section>
 
-      {/* Footer */}
+      {/* ── Brands ── */}
+      <section className={styles.brands}>
+        {BRANDS.map(b => <span key={b} className={styles.brand}>{b}</span>)}
+      </section>
+
+      {/* ── Footer ── */}
       <footer className={styles.footer}>
-        <p>© 2026 ShopAI · Built with Next.js & Firebase</p>
+        <div className={styles.footerGrid}>
+          <div>
+            <h4>INFORMATION</h4>
+            <a href="#">About Us</a><a href="#">Delivery</a><a href="#">Privacy Policy</a><a href="#">Terms & Conditions</a>
+          </div>
+          <div>
+            <h4>CUSTOMER SERVICE</h4>
+            <a href="#">Contact Us</a><a href="#">Returns</a><a href="#">Site Map</a>
+          </div>
+          <div>
+            <h4>EXTRAS</h4>
+            <a href="#">Brands</a><a href="#">Gift Vouchers</a><a href="#">Affiliates</a><a href="#">Specials</a>
+          </div>
+          <div>
+            <h4>MY ACCOUNT</h4>
+            <Link href="/auth/login">My Account</Link>
+            <a href="#">Order History</a><a href="#">Wish List</a>
+            <Link href="/auth/signup">Newsletter</Link>
+          </div>
+        </div>
+        <div className={styles.footerBottom}>
+          <p>© 2026 ShopAI · Premium E-Commerce</p>
+        </div>
       </footer>
     </div>
   );
 }
 
 const FALLBACK = [
-  { id: '1', title: 'Premium Wireless Headphones', price: 299.99, categoryId: 'electronics', rating: 4.8, reviewCount: 124, stock: 15, images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80'], sellerId: 'seed' },
-  { id: '2', title: 'Ergonomic Office Chair', price: 399.00, categoryId: 'home', rating: 4.9, reviewCount: 43, stock: 10, images: ['https://images.unsplash.com/photo-1592078615290-033ee584e267?w=800&q=80'], sellerId: 'seed' },
-  { id: '3', title: 'Artisan Coffee Beans 1kg', price: 24.99, categoryId: 'food', rating: 4.9, reviewCount: 512, stock: 80, images: ['https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=80'], sellerId: 'seed' },
-  { id: '4', title: 'Hand-Poured Soy Candle', price: 19.99, categoryId: 'handmade', rating: 4.9, reviewCount: 607, stock: 65, images: ['https://images.unsplash.com/photo-1602607144535-11be3fe59c5e?w=800&q=80'], sellerId: 'seed' },
-  { id: '5', title: 'Gold Layered Necklace Set', price: 28.00, categoryId: 'fashion', rating: 4.7, reviewCount: 389, stock: 75, images: ['https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80'], sellerId: 'seed' },
-  { id: '6', title: 'Running Shoes Air Max', price: 129.99, categoryId: 'sports', rating: 4.7, reviewCount: 302, stock: 35, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], sellerId: 'seed' },
+  { id: '1', title: "Men's Leather Jacket", price: 349.00, categoryId: 'clothing', rating: 4.9, reviewCount: 78, stock: 10, images: ['https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80'], sellerId: 'seed' },
+  { id: '2', title: 'Wireless Headphones', price: 299.99, categoryId: 'electronics', rating: 4.8, reviewCount: 124, stock: 15, images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80'], sellerId: 'seed' },
+  { id: '3', title: 'Leather Backpack', price: 189.00, categoryId: 'fashion', rating: 4.8, reviewCount: 95, stock: 18, images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80'], sellerId: 'seed' },
+  { id: '4', title: 'Running Shoes', price: 129.99, categoryId: 'sports', rating: 4.7, reviewCount: 302, stock: 35, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], sellerId: 'seed' },
+  { id: '5', title: 'Soy Candle', price: 19.99, categoryId: 'handmade', rating: 4.9, reviewCount: 607, stock: 65, images: ['https://images.unsplash.com/photo-1602607144535-11be3fe59c5e?w=800&q=80'], sellerId: 'seed' },
 ];

@@ -12,9 +12,10 @@ import styles from './Navbar.module.css';
 interface NavbarProps {
   search?: string;
   onSearch?: (v: string) => void;
+  dark?: boolean;
 }
 
-export default function Navbar({ search = '', onSearch }: NavbarProps) {
+export default function Navbar({ search = '', onSearch, dark = false }: NavbarProps) {
   const { user, profile } = useAuth();
   const { items } = useCart();
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function Navbar({ search = '', onSearch }: NavbarProps) {
   };
 
   return (
-    <header className={styles.navbar}>
+    <header className={`${styles.navbar} ${dark ? styles.navbarDark : ''}`}>
       <div className={styles.inner}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
