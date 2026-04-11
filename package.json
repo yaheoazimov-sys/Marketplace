@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx scripts/seed.ts",
-    "seed:boss": "tsx scripts/seed-boss.ts"
+    "seed:boss": "tsx scripts/seed-boss.ts",
+    "seed:boss-extra": "tsx scripts/seed-boss-extra.ts"
   },
   "dependencies": {
     "firebase": "^12.11.0",
