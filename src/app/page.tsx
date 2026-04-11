@@ -1,147 +1,226 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
+import styles from './home.module.css';
+
+const CATEGORIES = [
+  { id: 'all', label: 'All', emoji: '✨' },
+  { id: 'electronics', label: 'Electronics', emoji: '💻' },
+  { id: 'fashion', label: 'Fashion', emoji: '👕' },
+  { id: 'food', label: 'Food & Drinks', emoji: '🍔' },
+  { id: 'handmade', label: 'Handmade', emoji: '🛍️' },
+  { id: 'home', label: 'Home', emoji: '🏠' },
+  { id: 'sports', label: 'Sports', emoji: '⚽' },
+];
+
+const SORT_OPTIONS = [
+  { value: 'default', label: 'Featured' },
+  { value: 'price_asc', label: 'Price: Low to High' },
+  { value: 'price_desc', label: 'Price: High to Low' },
+  { value: 'rating', label: 'Top Rated' },
+];
 
 export default function Home() {
+  const { user, profile } = useAuth();
+  const { items, addItem } = useCart();
   const [products, setProducts] = useState<any[]>([]);
+  const [filtered, setFiltered] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [sort, setSort] = useState('default');
+  const [search, setSearch] = useState('');
+  const [addedId, setAddedId] = useState<string | null>(null);
+
+  const cartCount = items.reduce((s, i) => s + i.quantity, 0);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch('/api/products');
-        if (!res.ok) throw new Error('API failed');
-        const data = await res.json();
-        if (data.products && data.products.length > 0) {
-          setProducts(data.products);
-        } else {
-          throw new Error('Empty');
-        }
-      } catch (err) {
-        // Fallback Mock Data for UI presentation
-        setProducts([
-          { id: '1', title: 'Premium Wireless Headphones', price: 299.99, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80' },
-          { id: '2', title: 'Ergonomic Desk Chair', price: 199.50, image: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=800&q=80' },
-          { id: '3', title: 'Mechanical Keyboard Pro', price: 149.00, image: 'https://images.unsplash.com/photo-1595225476474-87563907a212?w=800&q=80' },
-          { id: '4', title: 'Minimalist Wrist Watch', price: 120.00, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80' },
-          { id: '5', title: 'Smart Home Speaker', price: 89.99, image: 'https://images.unsplash.com/photo-1589003077984-894e133dabab?w=800&q=80' },
-          { id: '6', title: '4K Ultra Monitor', price: 450.00, image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&q=80' },
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
+    fetch('/api/products')
+      .then(r => r.json())
+      .then(d => {
+        const list = d.products || FALLBACK;
+        setProducts(list);
+        setFiltered(list);
+      })
+      .catch(() => {
+        setProducts(FALLBACK);
+        setFiltered(FALLBACK);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
+  const applyFilters = useCallback(() => {
+    let list = [...products];
+    if (activeCategory !== 'all') list = list.filter(p => p.categoryId === activeCategory);
+    if (search.trim()) list = list.filter(p => p.title.toLowerCase().includes(search.toLowerCase()));
+    if (sort === 'price_asc') list.sort((a, b) => a.price - b.price);
+    else if (sort === 'price_desc') list.sort((a, b) => b.price - a.price);
+    else if (sort === 'rating') list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    setFiltered(list);
+  }, [products, activeCategory, search, sort]);
+
+  useEffect(() => { applyFilters(); }, [applyFilters]);
+
+  const handleAddToCart = (e: React.MouseEvent, p: any) => {
+    e.preventDefault();
+    addItem({ id: p.id, title: p.title, price: p.price, quantity: 1, image: p.images?.[0], sellerId: p.sellerId });
+    setAddedId(p.id);
+    setTimeout(() => setAddedId(null), 1500);
+  };
+
   return (
-    <main style={{ minHeight: '100vh', padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
-      
-      {/* Header / Navbar Simulation */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: '800', letterSpacing: '-0.5px' }}>BigShop<span style={{ color: 'var(--accent-color)' }}>AI</span></h1>
-        
-        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-          <input 
-            type="text" 
-            placeholder="Search products..." 
-            style={{ 
-              padding: '0.6rem 1rem', 
-              borderRadius: '20px', 
-              border: '1px solid var(--border-color)', 
-              background: 'var(--bg-tertiary)',
-              color: 'var(--text-primary)',
-              outline: 'none',
-              width: '250px'
-            }} 
-          />
-          <Link href="/auth/login" style={{ fontWeight: '500' }}>Log In</Link>
-          <Link href="/auth/signup" style={{ 
-            padding: '0.6rem 1.2rem', 
-            background: 'var(--text-primary)', 
-            color: 'var(--bg-primary)', 
-            borderRadius: '20px', 
-            fontWeight: '600' 
-          }}>Sign Up</Link>
+    <div className={styles.page}>
+      {/* Navbar */}
+      <header className={styles.navbar}>
+        <div className={styles.navInner}>
+          <Link href="/" className={styles.logo}>
+            Shop<span>AI</span>
+          </Link>
+
+          <div className={styles.searchWrap}>
+            <span className={styles.searchIcon}>🔍</span>
+            <input
+              className={styles.searchInput}
+              type="text"
+              placeholder="Search products..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+
+          <nav className={styles.navActions}>
+            {user ? (
+              <>
+                <span className={styles.greeting}>Hi, {profile?.displayName?.split(' ')[0] || 'there'}</span>
+                {profile?.role === 'seller' && <Link href="/seller/dashboard" className={styles.navLink}>Dashboard</Link>}
+                {profile?.role === 'admin' && <Link href="/admin/dashboard" className={styles.navLink}>Admin</Link>}
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login" className={styles.navLink}>Sign In</Link>
+                <Link href="/auth/signup" className={styles.navBtnPrimary}>Get Started</Link>
+              </>
+            )}
+            <Link href="/checkout" className={styles.cartBtn}>
+              🛒
+              {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
+            </Link>
+          </nav>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section style={{ 
-        padding: '4rem 2rem', 
-        borderRadius: '24px', 
-        background: 'linear-gradient(135deg, var(--accent-hover), var(--accent-color))',
-        color: 'white',
-        marginBottom: '3rem',
-        textAlign: 'center',
-        boxShadow: 'var(--shadow-lg)'
-      }}>
-        <h2 style={{ fontSize: '3rem', fontWeight: '800', marginBottom: '1rem' }}>Future of E-Commerce</h2>
-        <p style={{ fontSize: '1.2rem', opacity: '0.9', maxWidth: '600px', margin: '0 auto' }}>
-          Discover curated premium products from top sellers globally, integrated with AI recommendations and seamless checkout.
-        </p>
+      {/* Hero */}
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <div className={styles.heroBadge}>✨ New arrivals every week</div>
+          <h1 className={styles.heroTitle}>
+            Discover Products<br />You'll <span>Love</span>
+          </h1>
+          <p className={styles.heroSub}>
+            Handpicked items from top sellers — fashion, tech, food, and handmade crafts.
+          </p>
+          <div className={styles.heroActions}>
+            <Link href="/auth/signup" className={styles.heroCta}>Start Shopping</Link>
+            <Link href="#catalog" className={styles.heroSecondary}>Browse Catalog ↓</Link>
+          </div>
+        </div>
+        <div className={styles.heroStats}>
+          <div className={styles.stat}><strong>22+</strong><span>Products</span></div>
+          <div className={styles.statDivider} />
+          <div className={styles.stat}><strong>7</strong><span>Categories</span></div>
+          <div className={styles.statDivider} />
+          <div className={styles.stat}><strong>4.8★</strong><span>Avg Rating</span></div>
+        </div>
       </section>
 
-      {/* Catalog Grid */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h3 style={{ fontSize: '1.5rem', fontWeight: '700' }}>Trending Now</h3>
-        <select style={{ 
-          padding: '0.5rem', 
-          borderRadius: '8px', 
-          border: '1px solid var(--border-color)', 
-          background: 'var(--bg-secondary)',
-          color: 'var(--text-primary)'
-        }}>
-          <option>Sort by: Featured</option>
-          <option>Price: Low to High</option>
-          <option>Price: High to Low</option>
-        </select>
-      </div>
-
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '4rem' }}>Loading catalog...</div>
-      ) : (
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-          gap: '2rem' 
-        }}>
-          {products.map((p) => (
-            <Link href={`/products/${p.id}`} key={p.id}>
-              <div style={{ 
-                background: 'var(--bg-secondary)', 
-                borderRadius: '16px', 
-                overflow: 'hidden',
-                border: '1px solid var(--glass-border)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                cursor: 'pointer',
-                display: 'flex',
-                flexDirection: 'column',
-                height: '100%'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-5px)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-              }}
-              >
-                <div style={{ height: '220px', overflow: 'hidden' }}>
-                  <img src={p.image || p.images?.[0]} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-                <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                  <h4 style={{ fontWeight: '600', fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{p.title}</h4>
-                  <p style={{ fontWeight: '700', color: 'var(--accent-color)', fontSize: '1.2rem', marginTop: 'auto' }}>${Number(p.price).toFixed(2)}</p>
-                </div>
-              </div>
-            </Link>
+      {/* Catalog */}
+      <main className={styles.catalog} id="catalog">
+        {/* Category Pills */}
+        <div className={styles.categoryRow}>
+          {CATEGORIES.map(c => (
+            <button
+              key={c.id}
+              className={`${styles.categoryPill} ${activeCategory === c.id ? styles.categoryPillActive : ''}`}
+              onClick={() => setActiveCategory(c.id)}
+            >
+              {c.emoji} {c.label}
+            </button>
           ))}
         </div>
-      )}
 
-    </main>
+        {/* Toolbar */}
+        <div className={styles.toolbar}>
+          <p className={styles.resultCount}>
+            {loading ? 'Loading...' : `${filtered.length} products`}
+          </p>
+          <select
+            className={styles.sortSelect}
+            value={sort}
+            onChange={e => setSort(e.target.value)}
+          >
+            {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+
+        {/* Grid */}
+        {loading ? (
+          <div className={styles.skeletonGrid}>
+            {Array.from({ length: 8 }).map((_, i) => <div key={i} className={styles.skeleton} />)}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className={styles.empty}>
+            <span>😕</span>
+            <p>No products found</p>
+          </div>
+        ) : (
+          <div className={styles.grid}>
+            {filtered.map(p => (
+              <Link href={`/products/${p.id}`} key={p.id} className={styles.card}>
+                <div className={styles.cardImg}>
+                  <img src={p.images?.[0] || p.image} alt={p.title} loading="lazy" />
+                  {p.stock === 0 && <div className={styles.outOfStock}>Out of stock</div>}
+                </div>
+                <div className={styles.cardBody}>
+                  <p className={styles.cardCategory}>{CATEGORIES.find(c => c.id === p.categoryId)?.emoji} {p.categoryId}</p>
+                  <h3 className={styles.cardTitle}>{p.title}</h3>
+                  {p.rating && (
+                    <div className={styles.cardRating}>
+                      <span className={styles.stars}>{'★'.repeat(Math.round(p.rating))}{'☆'.repeat(5 - Math.round(p.rating))}</span>
+                      <span className={styles.ratingNum}>{p.rating} ({p.reviewCount})</span>
+                    </div>
+                  )}
+                  <div className={styles.cardFooter}>
+                    <span className={styles.price}>${Number(p.price).toFixed(2)}</span>
+                    <button
+                      className={`${styles.addBtn} ${addedId === p.id ? styles.addBtnDone : ''}`}
+                      onClick={e => handleAddToCart(e, p)}
+                      disabled={p.stock === 0}
+                    >
+                      {addedId === p.id ? '✓' : '+'}
+                    </button>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <p>© 2026 ShopAI · Built with Next.js & Firebase</p>
+      </footer>
+    </div>
   );
 }
+
+const FALLBACK = [
+  { id: '1', title: 'Premium Wireless Headphones', price: 299.99, categoryId: 'electronics', rating: 4.8, reviewCount: 124, stock: 15, images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80'], sellerId: 'seed' },
+  { id: '2', title: 'Ergonomic Office Chair', price: 399.00, categoryId: 'home', rating: 4.9, reviewCount: 43, stock: 10, images: ['https://images.unsplash.com/photo-1592078615290-033ee584e267?w=800&q=80'], sellerId: 'seed' },
+  { id: '3', title: 'Artisan Coffee Beans 1kg', price: 24.99, categoryId: 'food', rating: 4.9, reviewCount: 512, stock: 80, images: ['https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=80'], sellerId: 'seed' },
+  { id: '4', title: 'Hand-Poured Soy Candle', price: 19.99, categoryId: 'handmade', rating: 4.9, reviewCount: 607, stock: 65, images: ['https://images.unsplash.com/photo-1602607144535-11be3fe59c5e?w=800&q=80'], sellerId: 'seed' },
+  { id: '5', title: 'Gold Layered Necklace Set', price: 28.00, categoryId: 'fashion', rating: 4.7, reviewCount: 389, stock: 75, images: ['https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80'], sellerId: 'seed' },
+  { id: '6', title: 'Running Shoes Air Max', price: 129.99, categoryId: 'sports', rating: 4.7, reviewCount: 302, stock: 35, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], sellerId: 'seed' },
+];
