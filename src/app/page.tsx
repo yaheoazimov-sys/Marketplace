@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+import Navbar from '@/components/Navbar';
 import styles from './home.module.css';
 
 const CATEGORIES = [
@@ -24,7 +24,6 @@ const SORT_OPTIONS = [
 ];
 
 export default function Home() {
-  const { user, profile } = useAuth();
   const { items, addItem } = useCart();
   const [products, setProducts] = useState<any[]>([]);
   const [filtered, setFiltered] = useState<any[]>([]);
@@ -35,7 +34,6 @@ export default function Home() {
   const [addedId, setAddedId] = useState<string | null>(null);
 
   const cartCount = items.reduce((s, i) => s + i.quantity, 0);
-
   useEffect(() => {
     fetch('/api/products')
       .then(r => r.json())
@@ -72,44 +70,7 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      {/* Navbar */}
-      <header className={styles.navbar}>
-        <div className={styles.navInner}>
-          <Link href="/" className={styles.logo}>
-            Shop<span>AI</span>
-          </Link>
-
-          <div className={styles.searchWrap}>
-            <span className={styles.searchIcon}>🔍</span>
-            <input
-              className={styles.searchInput}
-              type="text"
-              placeholder="Search products..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-
-          <nav className={styles.navActions}>
-            {user ? (
-              <>
-                <span className={styles.greeting}>Hi, {profile?.displayName?.split(' ')[0] || 'there'}</span>
-                {profile?.role === 'seller' && <Link href="/seller/dashboard" className={styles.navLink}>Dashboard</Link>}
-                {profile?.role === 'admin' && <Link href="/admin/dashboard" className={styles.navLink}>Admin</Link>}
-              </>
-            ) : (
-              <>
-                <Link href="/auth/login" className={styles.navLink}>Sign In</Link>
-                <Link href="/auth/signup" className={styles.navBtnPrimary}>Get Started</Link>
-              </>
-            )}
-            <Link href="/checkout" className={styles.cartBtn}>
-              🛒
-              {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar search={search} onSearch={setSearch} />
 
       {/* Hero */}
       <section className={styles.hero}>
