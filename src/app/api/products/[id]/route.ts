@@ -3,13 +3,12 @@ import { adminDb } from '@/lib/firebase/admin';
 import { withAuth } from '@/lib/middleware/apiAuth';
 
 export const dynamic = 'force-dynamic';
-
+export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const docRef = adminDb.collection('products').doc(id);
-    const docSnap = await docRef.get();
+    const docSnap = await adminDb().collection('products').doc(id).get();
 
     if (!docSnap.exists) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
@@ -28,7 +27,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const user = authRes.context!;
 
   try {
-    const docRef = adminDb.collection('products').doc(id);
+    const db = adminDb();
+    const docRef = db.collection('products').doc(id);
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) {
@@ -42,13 +42,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const body = await req.json();
     const updateData = { ...body, updatedAt: new Date().toISOString() };
-    
-    // Disallow overriding critical root fields blindly
     delete updateData.id;
-    delete updateData.sellerId; 
+    delete updateData.sellerId;
 
     await docRef.update(updateData);
-
     return NextResponse.json({ message: 'Product updated', product: { ...product, ...updateData } }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -62,7 +59,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const user = authRes.context!;
 
   try {
-    const docRef = adminDb.collection('products').doc(id);
+    const db = adminDb();
+    const docRef = db.collection('products').doc(id);
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) {
@@ -75,7 +73,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     await docRef.delete();
-
     return NextResponse.json({ message: 'Product deleted' }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
