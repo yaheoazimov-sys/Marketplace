@@ -250,7 +250,7 @@ export default function Home() {
           </div>
         </div>
         <div className={styles.footerBottom}>
-          <p>© 2026 ShopAI · Premium E-Commerce</p>
+          <p>© 2026 BigBoss · Premium E-Commerce</p>
         </div>
       </footer>
     </div>

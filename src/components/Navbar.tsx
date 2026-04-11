@@ -56,7 +56,7 @@ export default function Navbar({ search = '', onSearch, dark = false }: NavbarPr
       <div className={styles.inner}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
-          Shop<span>AI</span>
+          Big<span>Boss</span>
         </Link>
 
         {/* Search */}

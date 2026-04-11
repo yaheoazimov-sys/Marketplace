@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Premium E-Commerce SaaS",
-  description: "Next-generation internet store powered by AI.",
+  title: "BigBoss — Premium Marketplace",
+  description: "BigBoss — discover premium fashion, electronics, cars and more.",
 };
 
 import AppProviders from "@/providers/AppProviders";
