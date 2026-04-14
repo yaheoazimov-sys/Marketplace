@@ -68,17 +68,61 @@ const extra = [
   // Underwear / Loungewear
   { title: 'BOSS 3-Pack Logo Boxer Briefs', description: 'Pack of 3 BOSS boxer briefs in stretch cotton. Elasticated logo waistband. Essential everyday comfort.', price: 69.00, stock: 60, images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80'] },
   { title: 'BOSS Loungewear Joggers', description: 'BOSS slim-fit jogger trousers in French terry. Elasticated logo waistband, zip pockets, tapered leg.', price: 129.00, stock: 30, images: ['https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=800&q=80'] },
+
+  // ── SHOES (30 items) ──
+  { title: 'BOSS Titanium Runner Sneakers White', description: 'BOSS Titanium low-top sneakers in leather and mesh. Chunky rubber sole, embossed BOSS logo, lace-up closure. Signature athleisure style.', price: 249.00, stock: 30, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Titanium Runner Sneakers Black', description: 'BOSS Titanium low-top sneakers in all-black leather. Chunky sole, tonal BOSS branding, padded collar.', price: 249.00, stock: 28, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Parkour Leather Sneakers', description: 'BOSS slim low-top sneakers in smooth leather. Tonal sole, embossed logo, clean minimalist design.', price: 199.00, stock: 25, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Parkour Suede Sneakers Grey', description: 'BOSS low-top sneakers in premium suede. Grey colourway, rubber sole, BOSS logo tab.', price: 219.00, stock: 22, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Mirage Leather Derby Shoes', description: 'BOSS Derby shoes in smooth calf leather. Leather sole with rubber insert, cap-toe detail. Business essential.', price: 329.00, stock: 15, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Firstclass Oxford Shoes', description: 'BOSS Oxford shoes in polished leather. Brogue detailing, leather sole, almond toe. Classic formal footwear.', price: 349.00, stock: 12, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Colby Leather Loafers', description: 'BOSS slip-on loafers in smooth leather. Penny strap, leather sole, cushioned insole. Smart-casual versatility.', price: 299.00, stock: 18, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Noel Suede Chelsea Boots', description: 'BOSS Chelsea boots in premium suede. Elastic side panels, leather sole, pull tab. Timeless silhouette.', price: 379.00, stock: 14, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Noel Leather Chelsea Boots Black', description: 'BOSS Chelsea boots in smooth black leather. Elastic gussets, stacked heel, leather sole. Wardrobe staple.', price: 399.00, stock: 12, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Hybrid Runner Sneakers', description: 'BOSS hybrid sneakers combining leather and technical fabric. Chunky layered sole, BOSS logo, lace-up.', price: 279.00, stock: 20, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], categoryId: 'fashion' },
+
+  // ── HEADWEAR (caps, hats, beanies) ──
+  { title: 'BOSS Cap-US Curved Peak Cap', description: 'BOSS cotton-twill cap with curved peak. Embroidered BOSS logo, adjustable strap. Classic 6-panel construction.', price: 65.00, stock: 60, images: ['https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Flat Cap Wool', description: 'BOSS flat cap in wool blend. Herringbone pattern, satin lining, snap button. Sophisticated British style.', price: 89.00, stock: 20, images: ['https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Trucker Cap Mesh', description: 'BOSS trucker cap with mesh back panels. Foam front, embroidered logo, snapback closure.', price: 55.00, stock: 45, images: ['https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Wool Beanie Ribbed Black', description: 'BOSS ribbed beanie in merino wool blend. Embroidered BOSS logo, fold-up cuff. Warm and minimal.', price: 65.00, stock: 50, images: ['https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Wool Beanie Grey', description: 'BOSS ribbed knit beanie in grey wool blend. Tonal BOSS logo, slouchy fit. Winter essential.', price: 65.00, stock: 45, images: ['https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80'], categoryId: 'fashion' },
+
+  // ── SOCKS & UNDERWEAR ──
+  { title: 'BOSS 3-Pack Logo Socks', description: 'Pack of 3 BOSS cotton-blend socks. Ribbed cuff, BOSS logo on sole. Available in black, white, grey.', price: 29.00, stock: 80, images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80'], categoryId: 'clothing' },
+  { title: 'BOSS 5-Pack Ankle Socks', description: 'Pack of 5 BOSS ankle socks in cotton blend. Cushioned sole, BOSS logo. Everyday comfort.', price: 39.00, stock: 70, images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80'], categoryId: 'clothing' },
+  { title: 'BOSS 2-Pack Crew Neck T-Shirts', description: 'Pack of 2 BOSS crew neck T-shirts in Supima cotton. Classic fit, BOSS logo on chest. White + Black.', price: 59.00, stock: 65, images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80'], categoryId: 'clothing' },
+  { title: 'BOSS Logo Waistband Trunks', description: 'BOSS stretch-cotton trunks with logo waistband. Contour pouch, flat seams. Pack of 2.', price: 49.00, stock: 55, images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80'], categoryId: 'clothing' },
+
+  // ── BELTS & ACCESSORIES ──
+  { title: 'BOSS Logo-Buckle Leather Belt Black', description: 'BOSS leather belt with signature logo buckle. Full-grain leather, 3.5cm width. Classic business accessory.', price: 89.00, stock: 40, images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Logo-Buckle Leather Belt Brown', description: 'BOSS leather belt in tan brown. Logo-engraved buckle, full-grain leather. Smart-casual essential.', price: 89.00, stock: 35, images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Leather Gloves Black', description: 'BOSS leather gloves in nappa leather. Cashmere lining, touchscreen-compatible fingertips. Elegant winter accessory.', price: 129.00, stock: 20, images: ['https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Wool Scarf Logo', description: 'BOSS scarf in wool-cashmere blend. Woven BOSS logo, fringed ends. 180x30cm. Luxurious warmth.', price: 119.00, stock: 25, images: ['https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Leather Wallet Bifold', description: 'BOSS bifold wallet in smooth leather. 8 card slots, bill compartment, BOSS logo emboss. RFID-blocking.', price: 99.00, stock: 35, images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Leather Card Holder', description: 'BOSS slim card holder in smooth leather. 4 card slots, BOSS logo. Minimalist everyday essential.', price: 69.00, stock: 45, images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80'], categoryId: 'fashion' },
+
+  // ── SWIMWEAR ──
+  { title: 'BOSS Iconic Swim Shorts Black', description: 'BOSS swim shorts with quick-dry fabric. Elasticated waistband, drawstring, side pockets. BOSS logo print.', price: 99.00, stock: 35, images: ['https://images.unsplash.com/photo-1591195853828-11db59a44f43?w=800&q=80'], categoryId: 'clothing' },
+  { title: 'BOSS Iconic Swim Shorts Navy', description: 'BOSS swim shorts in navy. Quick-dry fabric, mesh lining, zip pocket. Embroidered BOSS logo.', price: 99.00, stock: 30, images: ['https://images.unsplash.com/photo-1591195853828-11db59a44f43?w=800&q=80'], categoryId: 'clothing' },
+  { title: 'BOSS Iconic Swim Shorts White', description: 'BOSS swim shorts in white with tonal logo print. Quick-dry, elasticated waist, side pockets.', price: 99.00, stock: 25, images: ['https://images.unsplash.com/photo-1591195853828-11db59a44f43?w=800&q=80'], categoryId: 'clothing' },
+
+  // ── BAGS ──
+  { title: 'BOSS Catch Holdall Bag', description: 'BOSS holdall in recycled nylon. Zip closure, shoulder strap, BOSS logo. Ideal for gym or weekend travel.', price: 199.00, stock: 18, images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Pixel Backpack', description: 'BOSS backpack in recycled nylon. Laptop compartment, multiple pockets, BOSS logo. Functional and stylish.', price: 249.00, stock: 15, images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80'], categoryId: 'fashion' },
+  { title: 'BOSS Crosstown Messenger Bag', description: 'BOSS messenger bag in smooth leather. Adjustable strap, multiple compartments, BOSS logo hardware.', price: 349.00, stock: 10, images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80'], categoryId: 'fashion' },
 ];
 
 async function seedExtra() {
-  console.log('👔 Adding extra BOSS clothing...\n');
+  console.log('👔 Adding full BOSS collection (clothing + shoes + accessories)...\n');
   const batch = db.batch();
   for (const item of extra) {
     const ref = db.collection('products').doc();
+    const { categoryId, ...rest } = item as any;
     batch.set(ref, {
       id: ref.id,
-      ...item,
-      categoryId: 'clothing',
+      ...rest,
+      categoryId: categoryId || 'clothing',
       brand: 'BOSS',
       sellerId: 'seed',
       status: 'active',
@@ -89,7 +133,7 @@ async function seedExtra() {
     });
   }
   await batch.commit();
-  console.log(`✅ Added ${extra.length} extra BOSS items`);
+  console.log(`✅ Added ${extra.length} BOSS items`);
   console.log('🎉 Done!');
 }
 
