@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
@@ -10,30 +10,40 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import styles from './seller.layout.module.css';
 
 const NAV = [
-  { href: '/seller', label: 'Dashboard', icon: '🏠', exact: true },
-  { href: '/seller/orders', label: 'Orders', icon: '📋' },
+  { href: '/seller', label: 'Home', icon: '🏠', exact: true },
+  { href: '/seller/orders', label: 'Orders', icon: '📋', badge: true },
   { href: '/seller/products', label: 'Products', icon: '📦' },
   { href: '/seller/analytics', label: 'Analytics', icon: '📊' },
   { href: '/seller/customers', label: 'Customers', icon: '👥' },
+  { href: '/seller/messages', label: 'Messages', icon: '💬' },
+];
+
+const NAV2 = [
+  { href: '/seller/channels', label: 'Sales Channels', icon: '🔗' },
+  { href: '/seller/site', label: 'Site', icon: '🌐' },
+];
+
+const NAV3 = [
+  { href: '/seller/help', label: 'Help', icon: '❓' },
+  { href: '/seller/billing', label: 'Billing', icon: '💳' },
   { href: '/seller/settings', label: 'Settings', icon: '⚙️' },
 ];
 
 export default function SellerLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute allowedRoles={['seller', 'admin']}>
-      <SellerShell>{children}</SellerShell>
+      <Shell>{children}</Shell>
     </ProtectedRoute>
   );
 }
 
-function SellerShell({ children }: { children: React.ReactNode }) {
+function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { profile } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
 
-  const isActive = (href: string, exact?: boolean) =>
-    exact ? pathname === href : pathname.startsWith(href);
+  const active = (href: string, exact?: boolean) =>
+    exact ? pathname === href : pathname.startsWith(href) && href !== '/seller';
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -42,43 +52,46 @@ function SellerShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className={styles.shell}>
-      {/* Sidebar */}
-      <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
+      <aside className={styles.sidebar}>
         <div className={styles.sidebarTop}>
-          <Link href="/" className={styles.logo}>
-            {collapsed ? 'BB' : 'BigBoss'}
-          </Link>
-          <button className={styles.collapseBtn} onClick={() => setCollapsed(c => !c)}>
-            {collapsed ? '›' : '‹'}
-          </button>
+          <span className={styles.logo}>BigBoss</span>
+          <button className={styles.backArrow} onClick={() => router.push('/')}>←</button>
         </div>
 
         <nav className={styles.nav}>
           {NAV.map(item => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`${styles.navItem} ${isActive(item.href, item.exact) ? styles.navItemActive : ''}`}
-            >
+            <Link key={item.href} href={item.href}
+              className={`${styles.navItem} ${active(item.href, item.exact) ? styles.navItemActive : ''}`}>
               <span className={styles.navIcon}>{item.icon}</span>
-              {!collapsed && <span className={styles.navLabel}>{item.label}</span>}
+              <span className={styles.navLabel}>{item.label}</span>
+            </Link>
+          ))}
+
+          <div className={styles.navSection}>Sales</div>
+          {NAV2.map(item => (
+            <Link key={item.href} href={item.href}
+              className={`${styles.navItem} ${active(item.href) ? styles.navItemActive : ''}`}>
+              <span className={styles.navIcon}>{item.icon}</span>
+              <span className={styles.navLabel}>{item.label}</span>
             </Link>
           ))}
         </nav>
 
         <div className={styles.sidebarBottom}>
-          <Link href="/" className={`${styles.navItem} ${styles.navItemSm}`}>
-            <span className={styles.navIcon}>🌐</span>
-            {!collapsed && <span className={styles.navLabel}>View Store</span>}
-          </Link>
-          <button className={`${styles.navItem} ${styles.navItemSm} ${styles.signOutBtn}`} onClick={handleSignOut}>
+          {NAV3.map(item => (
+            <Link key={item.href} href={item.href}
+              className={`${styles.navItem} ${active(item.href) ? styles.navItemActive : ''}`}>
+              <span className={styles.navIcon}>{item.icon}</span>
+              <span className={styles.navLabel}>{item.label}</span>
+            </Link>
+          ))}
+          <button className={styles.navItem} onClick={handleSignOut}>
             <span className={styles.navIcon}>🚪</span>
-            {!collapsed && <span className={styles.navLabel}>Sign Out</span>}
+            <span className={styles.navLabel}>Sign Out</span>
           </button>
         </div>
       </aside>
 
-      {/* Main */}
       <div className={styles.main}>
         <header className={styles.topbar}>
           <div className={styles.topbarLeft}>

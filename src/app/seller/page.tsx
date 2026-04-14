@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { getProducts, getOrders } from '@/lib/firebase/firestore';
-import styles from './seller.page.module.css';
+import styles from './home.module.css';
 
 export default function SellerHome() {
   const { user, profile } = useAuth();
@@ -17,138 +17,138 @@ export default function SellerHome() {
     Promise.all([
       getProducts({ sellerId: user.uid }),
       getOrders(user.uid, profile?.role || 'seller'),
-    ]).then(([p, o]) => {
-      setProducts(p);
-      setOrders(o);
-    }).finally(() => setLoading(false));
+    ]).then(([p, o]) => { setProducts(p); setOrders(o); }).finally(() => setLoading(false));
   }, [user, profile]);
 
   const revenue = orders.filter(o => ['paid','delivered'].includes(o.status)).reduce((s, o) => s + (o.totalAmount || 0), 0);
-  const newOrders = orders.filter(o => o.status === 'pending' || o.status === 'confirmed');
-  const processing = orders.filter(o => o.status === 'processing');
-  const shipped = orders.filter(o => o.status === 'shipped');
-  const activeProducts = products.filter(p => p.status === 'active');
-  const lowStock = products.filter(p => p.stock <= 5 && p.stock > 0);
-  const outOfStock = products.filter(p => p.stock === 0);
-
-  const recentOrders = [...orders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
-
-  const statusColor = (s: string) => ({ paid: '#15803d', delivered: '#15803d', pending: '#92400e', confirmed: '#1e40af', processing: '#5b21b6', shipped: '#065f46', cancelled: '#b91c1c' }[s] || '#374151');
-  const statusBg = (s: string) => statusColor(s) + '18';
-
-  if (loading) return <div className={styles.loading}>Loading dashboard...</div>;
+  const newOrders = orders.filter(o => o.status === 'pending');
+  const processing = orders.filter(o => o.status === 'processing' || o.status === 'confirmed');
+  const readyToShip = orders.filter(o => o.status === 'shipped');
 
   return (
     <div className={styles.page}>
-      {/* Welcome */}
-      <div className={styles.welcome}>
-        <div>
-          <h1 className={styles.title}>Welcome back, {profile?.displayName?.split(' ')[0] || 'Seller'} 👋</h1>
-          <p className={styles.subtitle}>Here's what's happening in your store today.</p>
-        </div>
-        <Link href="/seller/products/new" className={styles.addBtn}>+ Add Product</Link>
-      </div>
-
-      {/* Stats */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <p className={styles.statLabel}>Total Revenue</p>
-          <p className={styles.statVal}>${revenue.toFixed(2)}</p>
-          <p className={styles.statSub}>{orders.filter(o=>['paid','delivered'].includes(o.status)).length} paid orders</p>
-        </div>
-        <div className={styles.statCard}>
-          <p className={styles.statLabel}>Total Orders</p>
-          <p className={styles.statVal}>{orders.length}</p>
-          <p className={styles.statSub}>{newOrders.length} new</p>
-        </div>
-        <div className={styles.statCard}>
-          <p className={styles.statLabel}>Products</p>
-          <p className={styles.statVal}>{products.length}</p>
-          <p className={styles.statSub}>{activeProducts.length} active</p>
-        </div>
-        <div className={styles.statCard}>
-          <p className={styles.statLabel}>Low Stock</p>
-          <p className={styles.statVal} style={{ color: lowStock.length > 0 ? '#ef4444' : '#111' }}>{lowStock.length + outOfStock.length}</p>
-          <p className={styles.statSub}>{outOfStock.length} out of stock</p>
-        </div>
-      </div>
-
-      {/* Setup checklist if no products */}
-      {products.length === 0 && (
-        <div className={styles.setupCard}>
-          <h2 className={styles.setupTitle}>🎉 Get started selling</h2>
-          <div className={styles.setupSteps}>
-            <div className={styles.setupStep}>
-              <div className={styles.setupIcon}>📦</div>
-              <div>
-                <p className={styles.setupStepTitle}>Add your first product</p>
-                <p className={styles.setupStepDesc}>Fill your store with products to start selling.</p>
-              </div>
-              <Link href="/seller/products/new" className={styles.setupBtn}>Add Product</Link>
+      {/* Welcome + Setup */}
+      <div className={styles.mainCol}>
+        {products.length === 0 && (
+          <div className={styles.welcomeCard}>
+            <h2 className={styles.welcomeTitle}>Congratulations on registering! 🎉</h2>
+            <div className={styles.setupForm}>
+              <p className={styles.setupStep}>Store Setup <span className={styles.stepBadge}>Step 1 of 2</span></p>
+              <div className={styles.field}><label>Store name</label><input defaultValue="My Store" /></div>
+              <div className={styles.field}><label>Store email</label><input defaultValue={profile?.email || ''} /></div>
+              <div className={styles.field}><label>Your name</label><input defaultValue={profile?.displayName || ''} /></div>
+              <div className={styles.field}><label>Phone</label><input placeholder="+1" /></div>
+              <button className={styles.saveBtn}>Save</button>
             </div>
-            <div className={styles.setupStep}>
-              <div className={styles.setupIcon}>🎨</div>
-              <div>
-                <p className={styles.setupStepTitle}>Customize your store</p>
-                <p className={styles.setupStepDesc}>Set up your store name and branding.</p>
+
+            <div className={styles.tips}>
+              <p className={styles.tipsTitle}>Follow our tips to start selling</p>
+              <div className={styles.tipCard}>
+                <span className={styles.tipIcon}>📦</span>
+                <div>
+                  <p className={styles.tipTitle}>Add your first product</p>
+                  <p className={styles.tipDesc}>Filling your store with products is the first step to launching it. Add your product and see how it looks on the site.</p>
+                </div>
               </div>
-              <Link href="/seller/settings" className={styles.setupBtnOutline}>Settings</Link>
+              <div className={styles.tipActions}>
+                <Link href="/seller/products/new" className={styles.tipBtn}>Add Product</Link>
+                <button className={styles.tipSkip}>Skip</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className={styles.bottomGrid}>
-        {/* Recent Orders */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>Recent Orders</h2>
-            <Link href="/seller/orders" className={styles.cardLink}>View all →</Link>
-          </div>
-          {recentOrders.length === 0 ? (
-            <p className={styles.empty}>No orders yet.</p>
-          ) : (
+        {products.length > 0 && (
+          <div className={styles.recentCard}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>Recent Products</h3>
+              <Link href="/seller/products" className={styles.cardLink}>All products →</Link>
+            </div>
             <table className={styles.table}>
-              <thead><tr><th>Order</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+              <thead><tr><th>Product</th><th>Price</th><th>Stock</th><th>Status</th></tr></thead>
               <tbody>
-                {recentOrders.map(o => (
-                  <tr key={o.id}>
-                    <td><Link href={`/orders/${o.id}`} className={styles.orderId}>#{o.id.slice(0,8).toUpperCase()}</Link></td>
-                    <td className={styles.dateCell}>{new Date(o.createdAt).toLocaleDateString()}</td>
-                    <td className={styles.amountCell}>${Number(o.totalAmount).toFixed(2)}</td>
-                    <td><span className={styles.pill} style={{ color: statusColor(o.status), background: statusBg(o.status) }}>{o.status}</span></td>
+                {products.slice(0, 5).map(p => (
+                  <tr key={p.id}>
+                    <td className={styles.productCell}>
+                      {p.images?.[0] && <img src={p.images[0]} alt="" className={styles.thumb} />}
+                      <span>{p.title}</span>
+                    </td>
+                    <td>${Number(p.price).toFixed(2)}</td>
+                    <td style={{ color: p.stock === 0 ? '#ef4444' : '#333' }}>{p.stock}</td>
+                    <td><span className={styles.pill} style={{ background: p.status === 'active' ? '#dcfce7' : '#f3f4f6', color: p.status === 'active' ? '#15803d' : '#6b7280' }}>{p.status}</span></td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          )}
+          </div>
+        )}
+      </div>
+
+      {/* Right panel — Stats */}
+      <div className={styles.sideCol}>
+        <div className={styles.statsCard}>
+          <div className={styles.statsHeader}>
+            <span className={styles.statsTitle}>Store Metrics</span>
+            <span className={styles.statsDate}>Today</span>
+          </div>
+          <div className={styles.statsGrid}>
+            <div className={styles.statItem}>
+              <p className={styles.statVal}>{loading ? '—' : orders.length}</p>
+              <p className={styles.statLabel}>Orders</p>
+            </div>
+            <div className={styles.statItem}>
+              <p className={styles.statVal}>{loading ? '—' : products.length}</p>
+              <p className={styles.statLabel}>Products</p>
+            </div>
+            <div className={styles.statItem}>
+              <p className={styles.statVal}>${loading ? '0' : revenue.toFixed(0)}</p>
+              <p className={styles.statLabel}>Revenue</p>
+            </div>
+            <div className={styles.statItem}>
+              <p className={styles.statVal}>{loading ? '0' : orders.length > 0 ? ((orders.filter(o=>['paid','delivered'].includes(o.status)).length / orders.length) * 100).toFixed(0) + '%' : '0%'}</p>
+              <p className={styles.statLabel}>Conversion</p>
+            </div>
+          </div>
         </div>
 
-        {/* Order Status Summary */}
-        <div className={styles.card}>
+        <div className={styles.ordersCard}>
           <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>Orders by Status</h2>
+            <span className={styles.cardTitle}>Orders</span>
+            <Link href="/seller/orders" className={styles.cardLink}>›</Link>
           </div>
-          <div className={styles.statusList}>
-            {[
-              { label: 'New Orders', count: newOrders.length, color: '#92400e', bg: '#fef3c7' },
-              { label: 'Processing', count: processing.length, color: '#5b21b6', bg: '#ede9fe' },
-              { label: 'Shipped', count: shipped.length, color: '#065f46', bg: '#d1fae5' },
-              { label: 'Delivered', count: orders.filter(o=>o.status==='delivered').length, color: '#14532d', bg: '#bbf7d0' },
-              { label: 'Cancelled', count: orders.filter(o=>o.status==='cancelled').length, color: '#b91c1c', bg: '#fee2e2' },
-            ].map(s => (
-              <div key={s.label} className={styles.statusRow}>
-                <div className={styles.statusLeft}>
-                  <span className={styles.statusDot} style={{ background: s.color }} />
-                  <span className={styles.statusLabel}>{s.label}</span>
-                </div>
-                <div className={styles.statusRight}>
-                  <span className={styles.statusCount} style={{ color: s.color, background: s.bg }}>{s.count}</span>
-                  <Link href="/seller/orders" className={styles.statusArrow}>›</Link>
-                </div>
-              </div>
-            ))}
-          </div>
+          <Link href="/seller/orders?status=pending" className={styles.orderRow}>
+            <div className={styles.orderRowLeft}>
+              <span className={styles.orderDot} style={{ background: '#ef4444' }} />
+              <span className={styles.orderLabel}>New orders</span>
+            </div>
+            <div className={styles.orderRowRight}>
+              <span className={styles.orderCount}>{newOrders.length}</span>
+              <span className={styles.orderAmount}>${newOrders.reduce((s,o)=>s+(o.totalAmount||0),0).toFixed(0)}</span>
+              <span className={styles.orderArrow}>›</span>
+            </div>
+          </Link>
+          <Link href="/seller/orders?status=processing" className={styles.orderRow}>
+            <div className={styles.orderRowLeft}>
+              <span className={styles.orderDot} style={{ background: '#f59e0b' }} />
+              <span className={styles.orderLabel}>Processing</span>
+            </div>
+            <div className={styles.orderRowRight}>
+              <span className={styles.orderCount}>{processing.length}</span>
+              <span className={styles.orderAmount}>${processing.reduce((s,o)=>s+(o.totalAmount||0),0).toFixed(0)}</span>
+              <span className={styles.orderArrow}>›</span>
+            </div>
+          </Link>
+          <Link href="/seller/orders?status=shipped" className={styles.orderRow}>
+            <div className={styles.orderRowLeft}>
+              <span className={styles.orderDot} style={{ background: '#22c55e' }} />
+              <span className={styles.orderLabel}>Ready to ship</span>
+            </div>
+            <div className={styles.orderRowRight}>
+              <span className={styles.orderCount}>{readyToShip.length}</span>
+              <span className={styles.orderAmount}>${readyToShip.reduce((s,o)=>s+(o.totalAmount||0),0).toFixed(0)}</span>
+              <span className={styles.orderArrow}>›</span>
+            </div>
+          </Link>
         </div>
       </div>
     </div>
