@@ -1,0 +1,20 @@
+.toolbar { display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.searchWrap { display: flex; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 0.5rem 0.75rem; flex: 1; min-width: 200px; }
+.searchInput { border: none; background: transparent; outline: none; font-size: 0.875rem; color: #111; width: 100%; font-family: inherit; }
+.select { padding: 0.5rem 0.75rem; border: 1px solid #e0e0e0; border-radius: 6px; background: #fff; color: #333; font-size: 0.8rem; font-family: inherit; outline: none; cursor: pointer; }
+.card { background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; overflow: hidden; }
+.loading { padding: 3rem; text-align: center; color: #888; font-size: 0.875rem; }
+.empty { padding: 3rem; text-align: center; color: #aaa; font-size: 0.875rem; }
+.tableWrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.table th { text-align: left; padding: 0.65rem 0.75rem; background: #f8f8f8; color: #555; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #eee; }
+.table td { padding: 0.75rem; border-bottom: 1px solid #f5f5f5; color: #333; vertical-align: middle; }
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: #fafafa; }
+.orderId { font-family: monospace; font-size: 0.8rem; color: #4f8ef7; font-weight: 600; }
+.muted { color: #888; font-size: 0.78rem; }
+.addr { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #888; font-size: 0.78rem; }
+.amount { font-weight: 700; color: #111; }
+.pill { padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 600; text-transform: capitalize; white-space: nowrap; }
+.statusSelect { padding: 0.3rem 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.78rem; font-family: inherit; outline: none; background: #fff; cursor: pointer; }
+.statusSelect:focus { border-color: #4f8ef7; }

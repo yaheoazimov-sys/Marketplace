@@ -1,69 +1,82 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import Navbar from '@/components/Navbar';
 import styles from './new.module.css';
 
-const CATS = ['electronics','clothing','fashion','food','handmade','home','sports','cars'];
+const CATS = [
+  { id: 'clothing', label: 'Clothing' },
+  { id: 'electronics', label: 'Electronics' },
+  { id: 'fashion', label: 'Fashion & Accessories' },
+  { id: 'food', label: 'Food & Drinks' },
+  { id: 'handmade', label: 'Handmade & Creative' },
+  { id: 'home', label: 'Home & Garden' },
+  { id: 'sports', label: 'Sports & Outdoors' },
+  { id: 'cars', label: 'Cars & Auto' },
+];
+
 const SIZES = ['XS','S','M','L','XL','XXL','XXXL','28','30','32','34','36','38','40','42','One Size'];
 const COLORS = ['Black','White','Navy','Grey','Beige','Brown','Red','Blue','Green','Yellow','Pink','Purple','Orange','Khaki','Camel'];
 
 export default function NewProductPage() {
-  return <ProtectedRoute allowedRoles={['seller','admin']}><Form /></ProtectedRoute>;
-}
-
-function Form() {
   const { user } = useAuth();
   const router = useRouter();
+
+  const [images, setImages] = useState<string[]>([]);
+  const [urlInput, setUrlInput] = useState('');
   const [title, setTitle] = useState('');
-  const [brand, setBrand] = useState('');
+  const [categoryId, setCategoryId] = useState('');
   const [description, setDescription] = useState('');
-  const [categoryId, setCategoryId] = useState('clothing');
-  const [status, setStatus] = useState('active');
-  const [sku, setSku] = useState('');
   const [price, setPrice] = useState('');
   const [comparePrice, setComparePrice] = useState('');
-  const [stock, setStock] = useState('');
-  const [imgInput, setImgInput] = useState('');
+  const [stock, setStock] = useState('1');
+  const [sku, setSku] = useState('');
+  const [tags, setTags] = useState('');
+  const [brand, setBrand] = useState('');
   const [sizes, setSizes] = useState<string[]>([]);
   const [colors, setColors] = useState<string[]>([]);
-  const [attrKey, setAttrKey] = useState('');
-  const [attrVal, setAttrVal] = useState('');
-  const [attributes, setAttributes] = useState<Record<string,string>>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const toggleSize = (s: string) => setSizes(p => p.includes(s) ? p.filter(x=>x!==s) : [...p,s]);
-  const toggleColor = (c: string) => setColors(p => p.includes(c) ? p.filter(x=>x!==c) : [...p,c]);
-  const addAttr = () => { if (!attrKey.trim()) return; setAttributes(a=>({...a,[attrKey.trim()]:attrVal.trim()})); setAttrKey(''); setAttrVal(''); };
-  const removeAttr = (k: string) => setAttributes(a=>{const n={...a};delete n[k];return n;});
+  const addUrl = () => {
+    const url = urlInput.trim();
+    if (!url) return;
+    if (images.length >= 5) { setError('Maximum 5 photos'); return; }
+    setImages(prev => [...prev, url]);
+    setUrlInput('');
+    setError('');
+  };
+
+  const removeImage = (i: number) => setImages(prev => prev.filter((_, idx) => idx !== i));
+  const toggleSize = (s: string) => setSizes(p => p.includes(s) ? p.filter(x => x !== s) : [...p, s]);
+  const toggleColor = (c: string) => setColors(p => p.includes(c) ? p.filter(x => x !== c) : [...p, c]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) { setError('You must be logged in'); return; }
+    if (images.length === 0) { setError('Add at least one photo'); return; }
+    if (!categoryId) { setError('Select a category'); return; }
     setSaving(true); setError('');
     try {
-      const images = imgInput.split(',').map(s=>s.trim()).filter(Boolean);
       const ref = await addDoc(collection(db, 'products'), {
-        title, brand, description, categoryId, status, sku,
+        title, brand, description, categoryId,
         price: Number(price),
         comparePrice: Number(comparePrice) || 0,
         stock: Number(stock),
-        images, sizes, colors, attributes,
+        sku, tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+        images, sizes, colors,
         sellerId: user.uid,
+        status: 'active',
         rating: 0, reviewCount: 0,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
-      // patch id field
-      const { doc, updateDoc } = await import('firebase/firestore');
       await updateDoc(doc(db, 'products', ref.id), { id: ref.id });
-      router.push('/seller/dashboard');
+      router.push('/seller/products');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -71,169 +84,146 @@ function Form() {
     }
   };
 
-  const imgUrls = imgInput.split(',').map(s=>s.trim()).filter(Boolean);
-
   return (
-    <>
-      <Navbar />
-      <div className={styles.page}>
-        <div className={styles.container}>
-          <div className={styles.breadcrumb}>
-            <Link href="/seller/dashboard">← Dashboard</Link>
-          </div>
-          <h1 className={styles.title}>Add New Product</h1>
-
-          {error && <div className={styles.error}>{error}</div>}
-
-          <form onSubmit={handleSubmit} className={styles.grid}>
-            <div className={styles.left}>
-
-              <div className={styles.card}>
-                <h2 className={styles.cardTitle}>Basic Info</h2>
-                <div className={styles.field}>
-                  <label>Title *</label>
-                  <input required value={title} onChange={e=>setTitle(e.target.value)} placeholder="Product name" />
-                </div>
-                <div className={styles.row2}>
-                  <div className={styles.field}>
-                    <label>Brand</label>
-                    <input value={brand} onChange={e=>setBrand(e.target.value)} placeholder="BOSS, Nike..." />
-                  </div>
-                  <div className={styles.field}>
-                    <label>SKU</label>
-                    <input value={sku} onChange={e=>setSku(e.target.value)} placeholder="SKU-001" />
-                  </div>
-                </div>
-                <div className={styles.field}>
-                  <label>Description</label>
-                  <textarea rows={4} value={description} onChange={e=>setDescription(e.target.value)} placeholder="Product description..." />
-                </div>
-                <div className={styles.row2}>
-                  <div className={styles.field}>
-                    <label>Category *</label>
-                    <select value={categoryId} onChange={e=>setCategoryId(e.target.value)}>
-                      {CATS.map(c=><option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                  <div className={styles.field}>
-                    <label>Status</label>
-                    <select value={status} onChange={e=>setStatus(e.target.value)}>
-                      <option value="active">Active</option>
-                      <option value="pending">Pending</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.card}>
-                <h2 className={styles.cardTitle}>Pricing & Stock</h2>
-                <div className={styles.row3}>
-                  <div className={styles.field}>
-                    <label>Price ($) *</label>
-                    <input required type="number" min="0" step="0.01" value={price} onChange={e=>setPrice(e.target.value)} placeholder="0.00" />
-                  </div>
-                  <div className={styles.field}>
-                    <label>Compare Price ($)</label>
-                    <input type="number" min="0" step="0.01" value={comparePrice} onChange={e=>setComparePrice(e.target.value)} placeholder="Original" />
-                  </div>
-                  <div className={styles.field}>
-                    <label>Stock *</label>
-                    <input required type="number" min="0" value={stock} onChange={e=>setStock(e.target.value)} placeholder="0" />
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.card}>
-                <h2 className={styles.cardTitle}>Images</h2>
-                <div className={styles.field}>
-                  <label>Image URLs (comma-separated)</label>
-                  <textarea rows={2} value={imgInput} onChange={e=>setImgInput(e.target.value)} placeholder="https://example.com/img1.jpg, ..." />
-                </div>
-                {imgUrls.length > 0 && (
-                  <div className={styles.imgPreview}>
-                    {imgUrls.map((url,i)=>(
-                      <img key={i} src={url} alt="" className={styles.imgThumb} onError={e=>(e.currentTarget.style.display='none')} />
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className={styles.card}>
-                <h2 className={styles.cardTitle}>Sizes</h2>
-                <div className={styles.tagGrid}>
-                  {SIZES.map(s=>(
-                    <button key={s} type="button" className={`${styles.tag} ${sizes.includes(s)?styles.tagActive:''}`} onClick={()=>toggleSize(s)}>{s}</button>
-                  ))}
-                </div>
-              </div>
-
-              <div className={styles.card}>
-                <h2 className={styles.cardTitle}>Colors</h2>
-                <div className={styles.colorGrid}>
-                  {COLORS.map(c=>(
-                    <button key={c} type="button" className={`${styles.colorBtn} ${colors.includes(c)?styles.colorBtnActive:''}`} onClick={()=>toggleColor(c)}>
-                      <span className={styles.swatch} style={{background: c==='White'?'#f0f0f0':c==='Beige'?'#f5f0e8':c==='Camel'?'#c19a6b':c==='Khaki'?'#8b8b6b':c.toLowerCase()}} />
-                      {c}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className={styles.card}>
-                <h2 className={styles.cardTitle}>Custom Attributes</h2>
-                <div className={styles.attrRow}>
-                  <input className={styles.attrInput} value={attrKey} onChange={e=>setAttrKey(e.target.value)} placeholder="Key (Material)" onKeyDown={e=>e.key==='Enter'&&(e.preventDefault(),addAttr())} />
-                  <input className={styles.attrInput} value={attrVal} onChange={e=>setAttrVal(e.target.value)} placeholder="Value (100% Cotton)" onKeyDown={e=>e.key==='Enter'&&(e.preventDefault(),addAttr())} />
-                  <button type="button" className={styles.btnSecondary} onClick={addAttr}>Add</button>
-                </div>
-                {Object.keys(attributes).length > 0 && (
-                  <div className={styles.attrList}>
-                    {Object.entries(attributes).map(([k,v])=>(
-                      <div key={k} className={styles.attrChip}>
-                        <span><b>{k}:</b> {v}</span>
-                        <button type="button" onClick={()=>removeAttr(k)}>✕</button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className={styles.right}>
-              <div className={styles.card}>
-                <h2 className={styles.cardTitle}>Preview</h2>
-                {imgUrls[0] && <img src={imgUrls[0]} alt="" className={styles.previewImg} onError={e=>(e.currentTarget.style.display='none')} />}
-                <p className={styles.previewTitle}>{title || 'Product name'}</p>
-                {brand && <p className={styles.previewBrand}>{brand}</p>}
-                <p className={styles.previewPrice}>{price ? `$${price}` : '$0.00'}</p>
-                {comparePrice && Number(comparePrice) > Number(price) && (
-                  <p className={styles.previewCompare}>${comparePrice}</p>
-                )}
-                <div className={styles.previewMeta}>
-                  <span>{categoryId}</span>
-                  <span className={`${styles.previewStatus} ${status==='active'?styles.statusActive:styles.statusPending}`}>{status}</span>
-                </div>
-                {sizes.length > 0 && <p className={styles.previewSizes}>{sizes.join(' · ')}</p>}
-                {colors.length > 0 && (
-                  <div className={styles.previewColors}>
-                    {colors.map(c=>(
-                      <span key={c} className={styles.colorDot} title={c} style={{background:c==='White'?'#f0f0f0':c==='Beige'?'#f5f0e8':c==='Camel'?'#c19a6b':c==='Khaki'?'#8b8b6b':c.toLowerCase()}} />
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className={styles.actions}>
-                <button type="submit" className={styles.btnPrimary} disabled={saving}>
-                  {saving ? 'Creating...' : 'Create Product'}
-                </button>
-                <Link href="/seller/dashboard" className={styles.btnOutline}>Cancel</Link>
-              </div>
-            </div>
-          </form>
-        </div>
+    <div className={styles.page}>
+      {/* Header */}
+      <div className={styles.header}>
+        <Link href="/seller/products" className={styles.back}>← Back</Link>
+        <h1 className={styles.title}>Add Product</h1>
       </div>
-    </>
+
+      <form onSubmit={handleSubmit} className={styles.form}>
+
+        {/* Photos */}
+        <div className={styles.card}>
+          <h2 className={styles.cardTitle}>Photos</h2>
+          <p className={styles.cardSub}>Up to 5 photos. First photo is the main one.</p>
+
+          <div className={styles.photoGrid}>
+            {images.map((url, i) => (
+              <div key={i} className={`${styles.photoSlot} ${i === 0 ? styles.photoMain : ''}`}>
+                <img src={url} alt="" onError={e => (e.currentTarget.src = '')} />
+                {i === 0 && <span className={styles.mainBadge}>Main</span>}
+                <button type="button" className={styles.removePhoto} onClick={() => removeImage(i)}>✕</button>
+              </div>
+            ))}
+            {images.length < 5 && (
+              <div className={styles.photoAdd}>
+                <span className={styles.photoAddIcon}>🖼</span>
+                <span className={styles.photoAddLabel}>Add</span>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.urlRow}>
+            <p className={styles.urlLabel}>Or add by URL (e.g. from Unsplash)</p>
+            <div className={styles.urlInputRow}>
+              <input
+                className={styles.urlInput}
+                value={urlInput}
+                onChange={e => setUrlInput(e.target.value)}
+                placeholder="https://images.unsplash.com/photo-..."
+                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addUrl())}
+              />
+              <button type="button" className={styles.urlBtn} onClick={addUrl}>Add</button>
+            </div>
+            <p className={styles.urlHint}>
+              💡 Tip: Use <a href="https://unsplash.com" target="_blank" rel="noreferrer">Unsplash.com</a> for free images
+            </p>
+          </div>
+        </div>
+
+        {/* Basic Info */}
+        <div className={styles.card}>
+          <h2 className={styles.cardTitle}>Basic Information</h2>
+
+          <div className={styles.field}>
+            <label>Title *</label>
+            <input required value={title} onChange={e => setTitle(e.target.value)} placeholder="Product name" />
+          </div>
+
+          <div className={styles.field}>
+            <label>Brand</label>
+            <input value={brand} onChange={e => setBrand(e.target.value)} placeholder="BOSS, Nike, Adidas..." />
+          </div>
+
+          <div className={styles.field}>
+            <label>Category *</label>
+            <select value={categoryId} onChange={e => setCategoryId(e.target.value)}>
+              <option value="">Select category</option>
+              {CATS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+            </select>
+          </div>
+
+          <div className={styles.field}>
+            <label>Description *</label>
+            <textarea required rows={5} value={description} onChange={e => setDescription(e.target.value)} placeholder="Detailed product description" />
+          </div>
+        </div>
+
+        {/* Sizes */}
+        <div className={styles.card}>
+          <h2 className={styles.cardTitle}>Sizes</h2>
+          <div className={styles.tagGrid}>
+            {SIZES.map(s => (
+              <button key={s} type="button" className={`${styles.tag} ${sizes.includes(s) ? styles.tagActive : ''}`} onClick={() => toggleSize(s)}>{s}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* Colors */}
+        <div className={styles.card}>
+          <h2 className={styles.cardTitle}>Colors</h2>
+          <div className={styles.colorGrid}>
+            {COLORS.map(c => (
+              <button key={c} type="button" className={`${styles.colorBtn} ${colors.includes(c) ? styles.colorBtnActive : ''}`} onClick={() => toggleColor(c)}>
+                <span className={styles.swatch} style={{ background: c === 'White' ? '#f0f0f0' : c === 'Beige' ? '#f5f0e8' : c === 'Camel' ? '#c19a6b' : c === 'Khaki' ? '#8b8b6b' : c.toLowerCase() }} />
+                {c}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Price & Stock */}
+        <div className={styles.card}>
+          <h2 className={styles.cardTitle}>Price & Availability</h2>
+
+          <div className={styles.row2}>
+            <div className={styles.field}>
+              <label>Price ($) *</label>
+              <input required type="number" min="0" step="0.01" value={price} onChange={e => setPrice(e.target.value)} placeholder="0.00" />
+            </div>
+            <div className={styles.field}>
+              <label>Old Price ($)</label>
+              <input type="number" min="0" step="0.01" value={comparePrice} onChange={e => setComparePrice(e.target.value)} placeholder="0.00" />
+            </div>
+          </div>
+
+          <div className={styles.row2}>
+            <div className={styles.field}>
+              <label>Quantity *</label>
+              <input required type="number" min="0" value={stock} onChange={e => setStock(e.target.value)} placeholder="1" />
+            </div>
+            <div className={styles.field}>
+              <label>SKU (Article)</label>
+              <input value={sku} onChange={e => setSku(e.target.value)} placeholder="PROD-001" />
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label>Tags (comma-separated)</label>
+            <input value={tags} onChange={e => setTags(e.target.value)} placeholder="clothing, gucci, luxury" />
+          </div>
+        </div>
+
+        {error && <div className={styles.error}>{error}</div>}
+
+        {/* Submit */}
+        <button type="submit" className={styles.submitBtn} disabled={saving}>
+          {saving ? 'Publishing...' : 'Publish Product'}
+        </button>
+
+      </form>
+    </div>
   );
 }
