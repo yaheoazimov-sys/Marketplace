@@ -1,57 +1,118 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import styles from './seller.module.css';
 
 const CATEGORIES = ['electronics','clothing','fashion','food','handmade','home','sports','cars'];
+const SIZES = ['XS','S','M','L','XL','XXL','XXXL','28','30','32','34','36','38','40','42','One Size'];
+const COLORS = ['Black','White','Navy','Grey','Beige','Brown','Red','Blue','Green','Yellow','Pink','Purple','Orange','Khaki','Camel'];
+const STATUS_OPTIONS = ['active','pending','inactive'];
 
-interface Product { id: string; title: string; price: number; stock: number; status: string; categoryId: string; description: string; images: string[]; }
+interface Product {
+  id: string; title: string; description: string; brand: string;
+  price: number; comparePrice: number; stock: number; sku: string;
+  categoryId: string; status: string;
+  images: string[]; sizes: string[]; colors: string[];
+  attributes: Record<string, string>;
+  rating: number; reviewCount: number; createdAt: string;
+}
+
 interface Order { id: string; createdAt: string; status: string; totalAmount: number; items: any[]; }
 
-const emptyForm = { title: '', description: '', price: '', stock: '', categoryId: 'clothing', images: '' };
+const emptyForm = (): Partial<Product> => ({
+  title: '', description: '', brand: '', price: 0, comparePrice: 0,
+  stock: 0, sku: '', categoryId: 'clothing', status: 'active',
+  images: [], sizes: [], colors: [], attributes: {},
+});
 
 export default function SellerDashboard() {
+  return (
+    <ProtectedRoute allowedRoles={['seller', 'admin']}>
+      <DashboardContent />
+    </ProtectedRoute>
+  );
+}
+
+function DashboardContent() {
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [tab, setTab] = useState<'products'|'orders'>('products');
+  const [tab, setTab] = useState<'products' | 'orders'>('products');
   const [showForm, setShowForm] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState<Partial<Product>>(emptyForm());
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // Filters
+  const [search, setSearch] = useState('');
+  const [filterCat, setFilterCat] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
+
+  // Image input helper
+  const [imgInput, setImgInput] = useState('');
+  // Attribute helper
+  const [attrKey, setAttrKey] = useState('');
+  const [attrVal, setAttrVal] = useState('');
 
   const getToken = async () => (await user?.getIdToken()) ?? '';
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/products?sellerId=${user.uid}`, { headers: { Authorization: `Bearer ${await getToken()}` } });
+      const res = await fetch(`/api/products?sellerId=${user.uid}`, {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
       const d = await res.json();
       setProducts(d.products || []);
-    } catch { setProducts([]); } finally { setLoading(false); }
-  };
+    } catch { setProducts([]); }
+    finally { setLoading(false); }
+  }, [user]);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     if (!user) return;
     try {
       const res = await fetch('/api/orders', { headers: { Authorization: `Bearer ${await getToken()}` } });
       const d = await res.json();
       setOrders(d.orders || []);
     } catch { setOrders([]); }
+  }, [user]);
+
+  useEffect(() => { fetchProducts(); fetchOrders(); }, [fetchProducts, fetchOrders]);
+
+  // Filtered + sorted products
+  const filtered = useMemo(() => {
+    let list = [...products];
+    if (search) list = list.filter(p => p.title.toLowerCase().includes(search.toLowerCase()) || p.brand?.toLowerCase().includes(search.toLowerCase()));
+    if (filterCat !== 'all') list = list.filter(p => p.categoryId === filterCat);
+    if (filterStatus !== 'all') list = list.filter(p => p.status === filterStatus);
+    if (sortBy === 'newest') list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    else if (sortBy === 'price_asc') list.sort((a, b) => a.price - b.price);
+    else if (sortBy === 'price_desc') list.sort((a, b) => b.price - a.price);
+    else if (sortBy === 'stock') list.sort((a, b) => a.stock - b.stock);
+    return list;
+  }, [products, search, filterCat, filterStatus, sortBy]);
+
+  const openCreate = () => {
+    setEditProduct(null);
+    setForm(emptyForm());
+    setImgInput('');
+    setAttrKey(''); setAttrVal('');
+    setError(''); setShowForm(true);
   };
 
-  useEffect(() => { if (user) { fetchProducts(); fetchOrders(); } }, [user]);
-
-  const openCreate = () => { setEditProduct(null); setForm(emptyForm); setError(''); setShowForm(true); };
   const openEdit = (p: Product) => {
     setEditProduct(p);
-    setForm({ title: p.title, description: p.description, price: String(p.price), stock: String(p.stock), categoryId: p.categoryId, images: p.images?.join(', ') || '' });
+    setForm({ ...p });
+    setImgInput(p.images?.join(', ') || '');
+    setAttrKey(''); setAttrVal('');
     setError(''); setShowForm(true);
   };
 
@@ -59,66 +120,141 @@ export default function SellerDashboard() {
     e.preventDefault();
     setSaving(true); setError('');
     try {
-      const body = { title: form.title, description: form.description, price: Number(form.price), stock: Number(form.stock), categoryId: form.categoryId, images: form.images.split(',').map(s => s.trim()).filter(Boolean) };
+      const body = {
+        ...form,
+        price: Number(form.price),
+        comparePrice: Number(form.comparePrice) || 0,
+        stock: Number(form.stock),
+        images: imgInput.split(',').map(s => s.trim()).filter(Boolean),
+      };
       const url = editProduct ? `/api/products/${editProduct.id}` : '/api/products';
       const method = editProduct ? 'PUT' : 'POST';
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await getToken()}` }, body: JSON.stringify(body) });
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await getToken()}` },
+        body: JSON.stringify(body),
+      });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
-      setShowForm(false); fetchProducts();
-    } catch (err: any) { setError(err.message); } finally { setSaving(false); }
+      setShowForm(false);
+      setSuccess(editProduct ? 'Product updated!' : 'Product created!');
+      setTimeout(() => setSuccess(''), 3000);
+      fetchProducts();
+    } catch (err: any) { setError(err.message); }
+    finally { setSaving(false); }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this product?')) return;
+    if (!confirm('Delete this product? This cannot be undone.')) return;
     try {
       await fetch(`/api/products/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${await getToken()}` } });
-      fetchProducts();
+      setProducts(prev => prev.filter(p => p.id !== id));
     } catch {}
   };
 
-  const statusColor = (s: string) => s === 'active' ? '#22c55e' : s === 'pending' ? '#f59e0b' : '#ef4444';
+  const toggleSize = (s: string) => setForm(f => ({ ...f, sizes: f.sizes?.includes(s) ? f.sizes.filter(x => x !== s) : [...(f.sizes || []), s] }));
+  const toggleColor = (c: string) => setForm(f => ({ ...f, colors: f.colors?.includes(c) ? f.colors.filter(x => x !== c) : [...(f.colors || []), c] }));
+  const addAttr = () => { if (!attrKey.trim()) return; setForm(f => ({ ...f, attributes: { ...(f.attributes || {}), [attrKey.trim()]: attrVal.trim() } })); setAttrKey(''); setAttrVal(''); };
+  const removeAttr = (k: string) => setForm(f => { const a = { ...(f.attributes || {}) }; delete a[k]; return { ...f, attributes: a }; });
+
+  const sc = (s: string) => s === 'active' ? '#22c55e' : s === 'pending' ? '#f59e0b' : '#ef4444';
+
+  // Stats
+  const totalRevenue = products.reduce((s, p) => s + p.price * (p.reviewCount || 0), 0);
+  const lowStock = products.filter(p => p.stock <= 5).length;
 
   return (
-    <ProtectedRoute allowedRoles={['seller', 'admin']}>
+    <>
       <Navbar />
       <div className={styles.page}>
+
+        {/* Header */}
         <div className={styles.header}>
-          <h1 className={styles.title}>Seller Portal</h1>
+          <div>
+            <h1 className={styles.title}>Seller Dashboard</h1>
+            <p className={styles.subtitle}>Manage your products and orders</p>
+          </div>
           <div className={styles.tabs}>
             <button className={`${styles.tab} ${tab === 'products' ? styles.tabActive : ''}`} onClick={() => setTab('products')}>📦 Products</button>
             <button className={`${styles.tab} ${tab === 'orders' ? styles.tabActive : ''}`} onClick={() => setTab('orders')}>🧾 Orders</button>
           </div>
         </div>
 
+        {/* Stats */}
+        <div className={styles.stats}>
+          <div className={styles.stat}><span className={styles.statVal}>{products.length}</span><span className={styles.statLabel}>Total Products</span></div>
+          <div className={styles.stat}><span className={styles.statVal}>{products.filter(p => p.status === 'active').length}</span><span className={styles.statLabel}>Active</span></div>
+          <div className={styles.stat}><span className={styles.statVal} style={{ color: lowStock > 0 ? '#ef4444' : 'inherit' }}>{lowStock}</span><span className={styles.statLabel}>Low Stock (≤5)</span></div>
+          <div className={styles.stat}><span className={styles.statVal}>{orders.length}</span><span className={styles.statLabel}>Orders</span></div>
+        </div>
+
+        {success && <div className={styles.successBanner}>✓ {success}</div>}
+
         {/* ── Products Tab ── */}
         {tab === 'products' && (
           <div className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <h2>My Products <span className={styles.badge}>{products.length}</span></h2>
+            {/* Toolbar */}
+            <div className={styles.toolbar}>
+              <div className={styles.searchWrap}>
+                <span>🔍</span>
+                <input className={styles.searchInput} placeholder="Search by title or brand..." value={search} onChange={e => setSearch(e.target.value)} />
+              </div>
+              <select className={styles.filterSelect} value={filterCat} onChange={e => setFilterCat(e.target.value)}>
+                <option value="all">All Categories</option>
+                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <select className={styles.filterSelect} value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+                <option value="all">All Status</option>
+                {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <select className={styles.filterSelect} value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                <option value="newest">Newest</option>
+                <option value="price_asc">Price ↑</option>
+                <option value="price_desc">Price ↓</option>
+                <option value="stock">Low Stock</option>
+              </select>
               <button className={styles.btnPrimary} onClick={openCreate}>+ Add Product</button>
             </div>
-            {loading ? <p className={styles.muted}>Loading...</p> : products.length === 0 ? (
-              <div className={styles.empty}><p>No products yet.</p><button className={styles.btnPrimary} onClick={openCreate}>Add your first product</button></div>
+
+            <p className={styles.resultCount}>{filtered.length} of {products.length} products</p>
+
+            {loading ? (
+              <div className={styles.skeletonGrid}>{Array(6).fill(null).map((_, i) => <div key={i} className={styles.skeleton} />)}</div>
+            ) : filtered.length === 0 ? (
+              <div className={styles.empty}>
+                <span>📦</span>
+                <p>{products.length === 0 ? 'No products yet.' : 'No products match your filters.'}</p>
+                {products.length === 0 && <button className={styles.btnPrimary} onClick={openCreate}>Add your first product</button>}
+              </div>
             ) : (
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
-                  <tbody>
-                    {products.map(p => (
-                      <tr key={p.id}>
-                        <td><div className={styles.productCell}>{p.images?.[0] && <img src={p.images[0]} alt="" className={styles.thumb} />}<span>{p.title}</span></div></td>
-                        <td><span className={styles.catTag}>{p.categoryId}</span></td>
-                        <td className={styles.price}>${Number(p.price).toFixed(2)}</td>
-                        <td style={{ color: p.stock === 0 ? '#ef4444' : 'inherit' }}>{p.stock}</td>
-                        <td><span className={styles.statusBadge} style={{ background: statusColor(p.status) + '20', color: statusColor(p.status) }}>{p.status}</span></td>
-                        <td className={styles.actions}>
-                          <button className={styles.btnEdit} onClick={() => openEdit(p)}>Edit</button>
-                          <button className={styles.btnDelete} onClick={() => handleDelete(p.id)}>Delete</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className={styles.productGrid}>
+                {filtered.map(p => (
+                  <div key={p.id} className={styles.productCard}>
+                    <div className={styles.productImg}>
+                      {p.images?.[0] ? <img src={p.images[0]} alt={p.title} /> : <span className={styles.noImg}>📷</span>}
+                      <span className={styles.productStatus} style={{ background: sc(p.status) + '22', color: sc(p.status) }}>{p.status}</span>
+                    </div>
+                    <div className={styles.productInfo}>
+                      {p.brand && <p className={styles.productBrand}>{p.brand}</p>}
+                      <p className={styles.productTitle}>{p.title}</p>
+                      <p className={styles.productCat}>{p.categoryId}</p>
+                      <div className={styles.productMeta}>
+                        {p.colors?.slice(0, 4).map(c => <span key={c} className={styles.colorDot} title={c} style={{ background: c.toLowerCase() === 'white' ? '#f0f0f0' : c.toLowerCase() }} />)}
+                        {p.sizes?.length > 0 && <span className={styles.sizeCount}>{p.sizes.length} sizes</span>}
+                      </div>
+                      <div className={styles.productFooter}>
+                        <div>
+                          <span className={styles.productPrice}>${Number(p.price).toFixed(2)}</span>
+                          {p.comparePrice > p.price && <span className={styles.comparePrice}>${Number(p.comparePrice).toFixed(2)}</span>}
+                        </div>
+                        <span className={styles.stockBadge} style={{ color: p.stock <= 5 ? '#ef4444' : '#22c55e' }}>Stock: {p.stock}</span>
+                      </div>
+                    </div>
+                    <div className={styles.productActions}>
+                      <button className={styles.btnEdit} onClick={() => openEdit(p)}>✏️ Edit</button>
+                      <button className={styles.btnDelete} onClick={() => handleDelete(p.id)}>🗑️</button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -139,7 +275,7 @@ export default function SellerDashboard() {
                         <td>{new Date(o.createdAt).toLocaleDateString()}</td>
                         <td>{o.items?.length ?? 0} items</td>
                         <td className={styles.price}>${Number(o.totalAmount).toFixed(2)}</td>
-                        <td><span className={styles.statusBadge} style={{ background: o.status === 'paid' ? '#22c55e20' : '#f59e0b20', color: o.status === 'paid' ? '#22c55e' : '#f59e0b' }}>{o.status}</span></td>
+                        <td><span className={styles.statusBadge} style={{ background: sc(o.status) + '20', color: sc(o.status) }}>{o.status}</span></td>
                       </tr>
                     ))}
                   </tbody>
@@ -154,50 +290,140 @@ export default function SellerDashboard() {
           <div className={styles.overlay} onClick={e => e.target === e.currentTarget && setShowForm(false)}>
             <div className={styles.modal}>
               <div className={styles.modalHeader}>
-                <h2>{editProduct ? 'Edit Product' : 'Add New Product'}</h2>
+                <h2>{editProduct ? '✏️ Edit Product' : '+ New Product'}</h2>
                 <button className={styles.closeBtn} onClick={() => setShowForm(false)}>✕</button>
               </div>
-              {error && <div className={styles.errorMsg}>{error}</div>}
+
+              {error && <div className={styles.errorMsg}>✕ {error}</div>}
+
               <form onSubmit={handleSubmit} className={styles.form}>
-                <div className={styles.formRow}>
-                  <div className={styles.field}>
-                    <label>Title *</label>
-                    <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Product name" />
+
+                {/* Basic Info */}
+                <div className={styles.formSection}>
+                  <h3 className={styles.formSectionTitle}>Basic Information</h3>
+                  <div className={styles.formRow}>
+                    <div className={styles.field}>
+                      <label>Title *</label>
+                      <input required value={form.title || ''} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Product name" />
+                    </div>
+                    <div className={styles.field}>
+                      <label>Brand</label>
+                      <input value={form.brand || ''} onChange={e => setForm(f => ({ ...f, brand: e.target.value }))} placeholder="e.g. BOSS, Nike..." />
+                    </div>
                   </div>
                   <div className={styles.field}>
-                    <label>Category *</label>
-                    <select value={form.categoryId} onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}>
-                      {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <label>Description</label>
+                    <textarea rows={4} value={form.description || ''} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Detailed product description..." />
+                  </div>
+                  <div className={styles.formRow}>
+                    <div className={styles.field}>
+                      <label>Category *</label>
+                      <select value={form.categoryId || 'clothing'} onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}>
+                        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div className={styles.field}>
+                      <label>Status</label>
+                      <select value={form.status || 'active'} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+                        {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </div>
+                    <div className={styles.field}>
+                      <label>SKU</label>
+                      <input value={form.sku || ''} onChange={e => setForm(f => ({ ...f, sku: e.target.value }))} placeholder="BOSS-001" />
+                    </div>
                   </div>
                 </div>
-                <div className={styles.field}>
-                  <label>Description</label>
-                  <textarea rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Product description..." />
+
+                {/* Pricing & Stock */}
+                <div className={styles.formSection}>
+                  <h3 className={styles.formSectionTitle}>Pricing & Stock</h3>
+                  <div className={styles.formRow}>
+                    <div className={styles.field}>
+                      <label>Price ($) *</label>
+                      <input required type="number" min="0" step="0.01" value={form.price || ''} onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))} placeholder="0.00" />
+                    </div>
+                    <div className={styles.field}>
+                      <label>Compare Price ($)</label>
+                      <input type="number" min="0" step="0.01" value={form.comparePrice || ''} onChange={e => setForm(f => ({ ...f, comparePrice: Number(e.target.value) }))} placeholder="Original price" />
+                    </div>
+                    <div className={styles.field}>
+                      <label>Stock *</label>
+                      <input required type="number" min="0" value={form.stock || ''} onChange={e => setForm(f => ({ ...f, stock: Number(e.target.value) }))} placeholder="0" />
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.formRow}>
+
+                {/* Images */}
+                <div className={styles.formSection}>
+                  <h3 className={styles.formSectionTitle}>Images</h3>
                   <div className={styles.field}>
-                    <label>Price ($) *</label>
-                    <input required type="number" min="0" step="0.01" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="0.00" />
+                    <label>Image URLs (comma-separated)</label>
+                    <textarea rows={2} value={imgInput} onChange={e => setImgInput(e.target.value)} placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg" />
                   </div>
-                  <div className={styles.field}>
-                    <label>Stock *</label>
-                    <input required type="number" min="0" value={form.stock} onChange={e => setForm(f => ({ ...f, stock: e.target.value }))} placeholder="0" />
+                  {imgInput && (
+                    <div className={styles.imgPreview}>
+                      {imgInput.split(',').map(s => s.trim()).filter(Boolean).map((url, i) => (
+                        <img key={i} src={url} alt="" className={styles.imgThumb} onError={e => (e.currentTarget.style.display = 'none')} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Sizes */}
+                <div className={styles.formSection}>
+                  <h3 className={styles.formSectionTitle}>Sizes</h3>
+                  <div className={styles.tagGrid}>
+                    {SIZES.map(s => (
+                      <button key={s} type="button" className={`${styles.tag} ${form.sizes?.includes(s) ? styles.tagActive : ''}`} onClick={() => toggleSize(s)}>{s}</button>
+                    ))}
                   </div>
                 </div>
-                <div className={styles.field}>
-                  <label>Image URLs (comma-separated)</label>
-                  <input value={form.images} onChange={e => setForm(f => ({ ...f, images: e.target.value }))} placeholder="https://example.com/image.jpg, ..." />
+
+                {/* Colors */}
+                <div className={styles.formSection}>
+                  <h3 className={styles.formSectionTitle}>Colors</h3>
+                  <div className={styles.colorGrid}>
+                    {COLORS.map(c => (
+                      <button key={c} type="button" className={`${styles.colorBtn} ${form.colors?.includes(c) ? styles.colorBtnActive : ''}`} onClick={() => toggleColor(c)} title={c}>
+                        <span className={styles.colorSwatch} style={{ background: c.toLowerCase() === 'white' ? '#f0f0f0' : c.toLowerCase() === 'beige' ? '#f5f0e8' : c.toLowerCase() === 'camel' ? '#c19a6b' : c.toLowerCase() === 'khaki' ? '#8b8b6b' : c.toLowerCase() }} />
+                        <span>{c}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Custom Attributes */}
+                <div className={styles.formSection}>
+                  <h3 className={styles.formSectionTitle}>Custom Attributes</h3>
+                  <div className={styles.attrRow}>
+                    <input className={styles.attrInput} value={attrKey} onChange={e => setAttrKey(e.target.value)} placeholder="Key (e.g. Material)" />
+                    <input className={styles.attrInput} value={attrVal} onChange={e => setAttrVal(e.target.value)} placeholder="Value (e.g. 100% Cotton)" />
+                    <button type="button" className={styles.btnSecondary} onClick={addAttr}>Add</button>
+                  </div>
+                  {Object.entries(form.attributes || {}).length > 0 && (
+                    <div className={styles.attrList}>
+                      {Object.entries(form.attributes || {}).map(([k, v]) => (
+                        <div key={k} className={styles.attrChip}>
+                          <span><strong>{k}:</strong> {v}</span>
+                          <button type="button" onClick={() => removeAttr(k)}>✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div className={styles.formActions}>
                   <button type="button" className={styles.btnSecondary} onClick={() => setShowForm(false)}>Cancel</button>
-                  <button type="submit" className={styles.btnPrimary} disabled={saving}>{saving ? 'Saving...' : editProduct ? 'Save Changes' : 'Create Product'}</button>
+                  <button type="submit" className={styles.btnPrimary} disabled={saving}>
+                    {saving ? 'Saving...' : editProduct ? 'Save Changes' : 'Create Product'}
+                  </button>
                 </div>
               </form>
             </div>
           </div>
         )}
       </div>
-    </ProtectedRoute>
+    </>
   );
 }

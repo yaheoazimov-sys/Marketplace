@@ -127,6 +127,9 @@ export default function Navbar({ search = '', onSearch, dark = false }: NavbarPr
                   <Link href="/checkout" className={styles.dropdownItem} onClick={() => setMenuOpen(false)}>
                     🛒 Cart ({cartCount})
                   </Link>
+                  <Link href="/orders" className={styles.dropdownItem} onClick={() => setMenuOpen(false)}>
+                    📦 My Orders
+                  </Link>
 
                   <div className={styles.dropdownDivider} />
 
