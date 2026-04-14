@@ -63,11 +63,11 @@ export default function Home() {
     fetch('/api/products')
       .then(r => r.json())
       .then(d => {
-        const list: any[] = d.products || FALLBACK;
+        const list: any[] = d.products || [];
         setProducts(list);
         setFeatured(list.slice(0, 5));
       })
-      .catch(() => { setProducts(FALLBACK); setFeatured(FALLBACK.slice(0, 5)); })
+      .catch(() => { setProducts([]); setFeatured([]); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -256,11 +256,3 @@ export default function Home() {
     </div>
   );
 }
-
-const FALLBACK = [
-  { id: '1', title: "Men's Leather Jacket", price: 349.00, categoryId: 'clothing', rating: 4.9, reviewCount: 78, stock: 10, images: ['https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80'], sellerId: 'seed' },
-  { id: '2', title: 'Wireless Headphones', price: 299.99, categoryId: 'electronics', rating: 4.8, reviewCount: 124, stock: 15, images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80'], sellerId: 'seed' },
-  { id: '3', title: 'Leather Backpack', price: 189.00, categoryId: 'fashion', rating: 4.8, reviewCount: 95, stock: 18, images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80'], sellerId: 'seed' },
-  { id: '4', title: 'Running Shoes', price: 129.99, categoryId: 'sports', rating: 4.7, reviewCount: 302, stock: 35, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80'], sellerId: 'seed' },
-  { id: '5', title: 'Soy Candle', price: 19.99, categoryId: 'handmade', rating: 4.9, reviewCount: 607, stock: 65, images: ['https://images.unsplash.com/photo-1602607144535-11be3fe59c5e?w=800&q=80'], sellerId: 'seed' },
-];

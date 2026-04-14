@@ -1,0 +1,45 @@
+.page { max-width: 1300px; margin: 0 auto; padding: 2rem; min-height: 100vh; background: #f7f7f7; }
+.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+.title { font-size: 1.6rem; font-weight: 800; color: #111; letter-spacing: -0.5px; }
+.subtitle { font-size: 0.85rem; color: #888; margin-top: 0.2rem; }
+.tabs { display: flex; gap: 0.5rem; }
+.tab { padding: 0.5rem 1.25rem; border: 1px solid #ddd; background: #fff; color: #555; font-size: 0.875rem; font-weight: 500; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+.tab:hover { border-color: #111; color: #111; }
+.tabActive { background: #111 !important; color: #fff !important; border-color: #111 !important; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+.stat { background: #fff; border-radius: 10px; padding: 1.1rem 1.25rem; border: 1px solid #e8e8e8; }
+.statVal { display: block; font-size: 1.6rem; font-weight: 800; color: #111; }
+.statLabel { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+.successBanner { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.875rem; margin-bottom: 1rem; }
+.section { background: #fff; border-radius: 12px; padding: 1.5rem; border: 1px solid #e8e8e8; }
+.toolbar { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.searchWrap { display: flex; align-items: center; gap: 0.5rem; background: #f8f8f8; border: 1px solid #e8e8e8; border-radius: 6px; padding: 0.5rem 0.75rem; flex: 1; min-width: 200px; }
+.searchInput { border: none; background: transparent; outline: none; font-size: 0.875rem; color: #111; width: 100%; font-family: inherit; }
+.btnPrimary { padding: 0.55rem 1.1rem; background: #111; color: #fff; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.skeletons { display: flex; flex-direction: column; gap: 0.5rem; }
+.skeleton { height: 52px; border-radius: 6px; background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.tableWrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.table th { text-align: left; padding: 0.6rem 0.75rem; background: #f8f8f8; color: #555; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #eee; }
+.table td { padding: 0.75rem; border-bottom: 1px solid #f0f0f0; color: #333; vertical-align: middle; }
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: #fafafa; }
+.emptyCell { text-align: center; color: #aaa; padding: 2rem !important; }
+.userCell { display: flex; align-items: center; gap: 0.75rem; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: #111; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+.userName { font-weight: 600; font-size: 0.85rem; color: #111; }
+.userEmail { font-size: 0.75rem; color: #888; }
+.inlineSelect { border: 1px solid #e0e0e0; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.8rem; font-weight: 600; background: #fafafa; outline: none; cursor: pointer; font-family: inherit; }
+.statusPill { padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.72rem; font-weight: 600; text-transform: capitalize; }
+.dateCell { font-size: 0.78rem; color: #888; }
+.btnBlock { padding: 0.3rem 0.7rem; background: #fff0f0; color: #ef4444; border: none; border-radius: 4px; font-size: 0.78rem; cursor: pointer; font-weight: 500; }
+.btnBlock:hover { background: #ffe0e0; }
+.btnUnblock { padding: 0.3rem 0.7rem; background: #f0fdf4; color: #15803d; border: none; border-radius: 4px; font-size: 0.78rem; cursor: pointer; font-weight: 500; }
+.btnUnblock:hover { background: #dcfce7; }
+.productCell { display: flex; align-items: center; gap: 0.6rem; }
+.thumb { width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; flex-shrink: 0; }
+.productName { font-size: 0.82rem; font-weight: 500; color: #111; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.catTag { background: #f0f0f0; color: #555; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.72rem; text-transform: capitalize; }
+.priceCell { font-weight: 700; color: #111; }
+@media (max-width: 768px) { .stats { grid-template-columns: repeat(2, 1fr); } .header { flex-direction: column; } }

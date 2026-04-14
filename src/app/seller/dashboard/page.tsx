@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import Link from 'next/link';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
@@ -212,7 +213,7 @@ function DashboardContent() {
                 <option value="price_desc">Price ↓</option>
                 <option value="stock">Low Stock</option>
               </select>
-              <button className={styles.btnPrimary} onClick={openCreate}>+ Add Product</button>
+              <Link href="/seller/products/new" className={styles.btnPrimary}>+ Add Product</Link>
             </div>
 
             <p className={styles.resultCount}>{filtered.length} of {products.length} products</p>
