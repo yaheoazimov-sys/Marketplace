@@ -51,7 +51,7 @@ function CatalogContent() {
   const [addedId, setAddedId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState(sp.get('q') || '');
-  const debounce = useRef<ReturnType<typeof setTimeout>>();
+  const debounce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const q = sp.get('q') || '';
   const cat = sp.get('cat') || 'all';
