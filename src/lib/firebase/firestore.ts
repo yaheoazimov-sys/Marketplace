@@ -17,7 +17,7 @@ export async function getProducts(filters?: { categoryId?: string; sellerId?: st
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-export async function getProduct(id: string) {
+export async function getProduct(id: string): Promise<any | null> {
   const snap = await getDoc(doc(db, 'products', id));
   if (!snap.exists()) return null;
   return { id: snap.id, ...snap.data() };
@@ -57,7 +57,7 @@ export async function getOrders(uid: string, role: string) {
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-export async function getOrder(id: string) {
+export async function getOrder(id: string): Promise<any | null> {
   const snap = await getDoc(doc(db, 'orders', id));
   if (!snap.exists()) return null;
   return { id: snap.id, ...snap.data() };
@@ -180,7 +180,7 @@ export async function hasPurchased(userId: string, productId: string): Promise<b
 }
 
 // Check if user already reviewed this product
-export async function getUserReview(userId: string, productId: string) {
+export async function getUserReview(userId: string, productId: string): Promise<any | null> {
   const q = query(collection(db, 'reviews'), where('userId', '==', userId), where('productId', '==', productId));
   const snap = await getDocs(q);
   if (snap.empty) return null;
@@ -264,7 +264,7 @@ export async function getCategories() {  const snap = await getDocs(collection(d
 }
 
 // ── Users ─────────────────────────────────────────────────
-export async function getUser(uid: string) {
+export async function getUser(uid: string): Promise<any | null> {
   const snap = await getDoc(doc(db, 'users', uid));
   if (!snap.exists()) return null;
   return { id: snap.id, ...snap.data() };

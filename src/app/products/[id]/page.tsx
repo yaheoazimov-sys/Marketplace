@@ -45,8 +45,7 @@ export default function ProductPage() {
 
   // Review state
   const [canReview, setCanReview] = useState(false);
-  const [existingReview, setExistingReview] = useState<any>(null);
-  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [existingReview, setExistingReview] = useState<any>(null);  const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
