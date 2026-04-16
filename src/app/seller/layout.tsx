@@ -13,6 +13,8 @@ const NAV = [
   { href: '/seller', label: 'Home', icon: '🏠', exact: true },
   { href: '/seller/orders', label: 'Orders', icon: '📋', badge: true },
   { href: '/seller/products', label: 'Products', icon: '📦' },
+  { href: '/seller/ads', label: 'Advertising', icon: '📢' },
+  { href: '/seller/reviews', label: 'Reviews', icon: '⭐' },
   { href: '/seller/analytics', label: 'Analytics', icon: '📊' },
   { href: '/seller/customers', label: 'Customers', icon: '👥' },
   { href: '/seller/messages', label: 'Messages', icon: '💬' },

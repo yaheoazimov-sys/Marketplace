@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
 import Navbar from '@/components/Navbar';
+import AiSupport from '@/components/AiSupport';
 import styles from './home.module.css';
 
 const CATEGORIES = [
@@ -99,9 +100,9 @@ export default function Home() {
   const cur = HERO_SLIDES[slide];
 
   return (
+    <>
     <div className={styles.page}>
       <Navbar search={search} onSearch={setSearch} />
-
       {/* ── Hero Slider ── */}
       <section className={styles.hero} style={{ background: cur.bg }}>
         <div className={styles.heroInner}>
@@ -184,8 +185,8 @@ export default function Home() {
             <option value="price_desc">Price ↓</option>
             <option value="rating">Top Rated</option>
           </select>
+          <Link href="/catalog" className={styles.viewAllBtn}>View Full Catalog →</Link>
         </div>
-
         {/* Grid */}
         {loading ? (
           <div className={styles.grid}>
@@ -254,5 +255,7 @@ export default function Home() {
         </div>
       </footer>
     </div>
+    <AiSupport />
+    </>
   );
 }
