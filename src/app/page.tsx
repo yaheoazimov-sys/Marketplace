@@ -9,15 +9,15 @@ import AiSupport from '@/components/AiSupport';
 import styles from './home.module.css';
 
 const CATS = [
-  { id: 'all', label: 'All Categories', icon: '🏪' },
-  { id: 'electronics', label: 'Electronics', icon: '💻' },
-  { id: 'clothing', label: 'Clothing', icon: '👔' },
-  { id: 'fashion', label: 'Accessories', icon: '👜' },
-  { id: 'cars', label: 'Cars & Auto', icon: '🚗' },
-  { id: 'sports', label: 'Sports', icon: '⚽' },
-  { id: 'home', label: 'Home & Garden', icon: '🏠' },
-  { id: 'food', label: 'Food & Drinks', icon: '🍔' },
-  { id: 'handmade', label: 'Handmade', icon: '🛍️' },
+  { id: 'all', label: 'All Categories' },
+  { id: 'electronics', label: 'Electronics' },
+  { id: 'clothing', label: 'Clothing' },
+  { id: 'fashion', label: 'Accessories' },
+  { id: 'cars', label: 'Cars & Auto' },
+  { id: 'sports', label: 'Sports' },
+  { id: 'home', label: 'Home & Garden' },
+  { id: 'food', label: 'Food & Drinks' },
+  { id: 'handmade', label: 'Handmade' },
 ];
 
 const SORTS = [
@@ -134,7 +134,7 @@ export default function Home() {
         <div className={styles.catPills}>
           {CATS.map(c => (
             <button key={c.id} className={`${styles.catPill} ${cat === c.id ? styles.catPillActive : ''}`} onClick={() => setCat(c.id)}>
-              <span>{c.icon}</span> {c.label}
+              {c.label}
             </button>
           ))}
         </div>
@@ -155,7 +155,7 @@ export default function Home() {
               {CATS.map(c => (
                 <label key={c.id} className={`${styles.filterOpt} ${cat === c.id ? styles.filterOptActive : ''}`}>
                   <input type="radio" name="cat" checked={cat === c.id} onChange={() => setCat(c.id)} />
-                  <span>{c.icon} {c.label}</span>
+                  <span>{c.label}</span>
                   <span className={styles.filterCount}>{c.id === 'all' ? products.length : products.filter(p => p.categoryId === c.id).length}</span>
                 </label>
               ))}
