@@ -33,7 +33,7 @@ const NAV3 = [
 
 export default function SellerLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ProtectedRoute allowedRoles={['seller', 'admin']}>
+    <ProtectedRoute allowedRoles={['seller', 'admin', 'client']}>
       <Shell>{children}</Shell>
     </ProtectedRoute>
   );
