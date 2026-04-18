@@ -2,38 +2,130 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Products — public read, authenticated write
-    match /products/{id} {
+    // ── Helper functions ──────────────────────────────────
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isAuth() && userRole() == 'admin';
+    }
+
+    function isSeller() {
+      return isAuth() && (userRole() == 'seller' || userRole() == 'admin');
+    }
+
+    function isActive() {
+      return isAuth() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'active';
+    }
+
+    // ── Products ──────────────────────────────────────────
+    match /products/{productId} {
+      // Anyone can read active products
       allow read: if true;
-      allow write: if request.auth != null;
+
+      // Sellers can create their own products
+      allow create: if isSeller() && isActive()
+        && request.resource.data.sellerId == uid();
+
+      // Sellers can update/delete their own; admins can update any
+      allow update: if isAuth() && isActive()
+        && (isAdmin() || resource.data.sellerId == uid());
+
+      allow delete: if isAuth() && isActive()
+        && (isAdmin() || resource.data.sellerId == uid());
     }
 
-    // Orders — authenticated users can create/read their own
-    match /orders/{id} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
+    // ── Orders ────────────────────────────────────────────
+    match /orders/{orderId} {
+      // Clients see their own orders; sellers see orders containing their products; admins see all
+      allow read: if isAuth() && (
+        resource.data.clientId == uid() ||
+        uid() in resource.data.sellerIds ||
+        isAdmin()
+      );
+
+      // Any authenticated active user can place an order
+      allow create: if isAuth() && isActive()
+        && request.resource.data.clientId == uid();
+
+      // Sellers and admins can update order status
+      allow update: if isAuth() && isActive()
+        && (isAdmin() || uid() in resource.data.sellerIds);
     }
 
-    // Users — read/write own profile
+    // ── Users ─────────────────────────────────────────────
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Users can read their own profile; admins can read all
+      allow read: if isAuth() && (uid() == userId || isAdmin());
 
-      // Addresses subcollection
-      match /addresses/{addrId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Users can create their own profile (on signup)
+      allow create: if isAuth() && uid() == userId;
+
+      // Users can update their own profile; admins can update any
+      allow update: if isAuth() && (uid() == userId || isAdmin());
+
+      // Only admins can delete users
+      allow delete: if isAdmin();
+
+      // ── Addresses subcollection ──
+      match /addresses/{addressId} {
+        allow read, write: if isAuth() && uid() == userId;
       }
     }
 
-    // Reviews — public read, authenticated write
-    match /reviews/{id} {
+    // ── Categories ────────────────────────────────────────
+    match /categories/{categoryId} {
+      // Anyone can read categories
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
-      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+
+      // Only admins can manage categories
+      allow write: if isAdmin();
     }
+
+    // ── Reviews ───────────────────────────────────────────
+    match /reviews/{reviewId} {
+      // Anyone can read reviews
       allow read: if true;
-      allow write: if request.auth != null;
+
+      // Only authenticated active users can create reviews
+      allow create: if isAuth() && isActive()
+        && request.resource.data.userId == uid();
+
+      // Users can update their own reviews; sellers can add sellerReply to their product reviews
+      allow update: if isAuth() && isActive()
+        && (resource.data.userId == uid() || isAdmin());
+
+      // Users can delete their own reviews; admins can delete any
+      allow delete: if isAuth()
+        && (resource.data.userId == uid() || isAdmin());
     }
+
+    // ── Ads ───────────────────────────────────────────────
+    match /ads/{adId} {
+      // Anyone can read approved ads; sellers see their own; admins see all
+      allow read: if resource.data.status == 'approved'
+        || (isAuth() && (resource.data.sellerId == uid() || isAdmin()));
+
+      // Sellers can create ads for their own products
+      allow create: if isSeller() && isActive()
+        && request.resource.data.sellerId == uid();
+
+      // Sellers can delete their own pending ads; admins can update status
+      allow update: if isAdmin();
+
+      allow delete: if isAuth()
+        && (resource.data.sellerId == uid() || isAdmin());
+    }
+
   }
 }
