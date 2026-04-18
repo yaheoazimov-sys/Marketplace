@@ -12,6 +12,7 @@ export async function getProducts(filters?: { categoryId?: string; sellerId?: st
   if (filters?.categoryId) constraints.push(where('categoryId', '==', filters.categoryId));
   if (filters?.sellerId) constraints.push(where('sellerId', '==', filters.sellerId));
   if (filters?.status) constraints.push(where('status', '==', filters.status));
+  // No orderBy to avoid composite index requirement
   const q = query(collection(db, 'products'), ...constraints);
   const snap = await getDocs(q);
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
