@@ -102,33 +102,56 @@ export default function Navbar({ search = '', onSearch, dark = false }: NavbarPr
 
               {menuOpen && (
                 <div className={styles.dropdown}>
+                  {/* Profile header */}
                   <div className={styles.dropdownHeader}>
                     <p className={styles.dropdownName}>{profile?.displayName ?? user.email}</p>
                     <p className={styles.dropdownEmail}>{user.email}</p>
-                    {profile?.role && (
-                      <span className={styles.roleBadge}>
-                        {roleLabel[profile.role] ?? profile.role}
-                      </span>
-                    )}
                   </div>
 
                   <div className={styles.dropdownDivider} />
 
-                  {profile?.role === 'seller' && (
-                    <Link href="/seller/dashboard" className={styles.dropdownItem} onClick={() => setMenuOpen(false)}>
-                      📦 My Products
+                  {/* Always show all 3 roles */}
+                  <div className={styles.roleRow}>
+                    <Link href="/seller" className={`${styles.roleItem} ${profile?.role === 'seller' ? styles.roleItemActive : ''}`} onClick={() => setMenuOpen(false)}>
+                      <span className={styles.roleIcon}>🏪</span>
+                      <div>
+                        <p className={styles.roleTitle}>Seller</p>
+                        <p className={styles.roleSub}>Manage your store</p>
+                      </div>
+                      {profile?.role === 'seller' && <span className={styles.roleCheck}>✓</span>}
+                      {profile?.role !== 'seller' && <span className={styles.roleArrow}>›</span>}
                     </Link>
-                  )}
-                  {profile?.role === 'admin' && (
-                    <Link href="/admin/dashboard" className={styles.dropdownItem} onClick={() => setMenuOpen(false)}>
-                      🛡️ Admin Panel
+
+                    <Link href="/admin/dashboard" className={`${styles.roleItem} ${profile?.role === 'admin' ? styles.roleItemActive : ''}`} onClick={() => setMenuOpen(false)}>
+                      <span className={styles.roleIcon}>🛡️</span>
+                      <div>
+                        <p className={styles.roleTitle}>Administration</p>
+                        <p className={styles.roleSub}>Platform management</p>
+                      </div>
+                      {profile?.role === 'admin' && <span className={styles.roleCheck}>✓</span>}
+                      {profile?.role !== 'admin' && <span className={styles.roleArrow}>›</span>}
                     </Link>
-                  )}
+
+                    <div className={`${styles.roleItem} ${profile?.role === 'client' ? styles.roleItemActive : ''}`}>
+                      <span className={styles.roleIcon}>🛒</span>
+                      <div>
+                        <p className={styles.roleTitle}>Buyer</p>
+                        <p className={styles.roleSub}>Browse & purchase</p>
+                      </div>
+                      {profile?.role === 'client' && <span className={styles.roleCheck}>✓</span>}
+                    </div>
+                  </div>
+
+                  <div className={styles.dropdownDivider} />
+
                   <Link href="/checkout" className={styles.dropdownItem} onClick={() => setMenuOpen(false)}>
                     🛒 Cart ({cartCount})
                   </Link>
                   <Link href="/orders" className={styles.dropdownItem} onClick={() => setMenuOpen(false)}>
                     📦 My Orders
+                  </Link>
+                  <Link href="/settings" className={styles.dropdownItem} onClick={() => setMenuOpen(false)}>
+                    ⚙️ Settings & Role
                   </Link>
 
                   <div className={styles.dropdownDivider} />

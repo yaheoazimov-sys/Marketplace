@@ -286,3 +286,32 @@
   background: #fff;
   border-bottom: 1px solid var(--border-color);
 }
+
+/* Role rows in dropdown */
+.roleRow { display: flex; flex-direction: column; gap: 2px; padding: 0.4rem 0; }
+
+.roleItem {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 1rem;
+  transition: background 0.15s;
+  border-radius: 0;
+  text-decoration: none;
+  color: inherit;
+}
+.roleItem:hover { background: #f5f5f5; }
+
+.roleItemActive { background: #fff8f0 !important; }
+
+.roleAdmin:hover { background: #f5f0ff; }
+.roleSeller:hover { background: #f0f9ff; }
+.roleBuyer { cursor: default; }
+
+.roleIcon { font-size: 1.1rem; flex-shrink: 0; width: 24px; text-align: center; }
+.roleTitle { font-size: 0.875rem; font-weight: 600; color: #111; }
+.roleSub { font-size: 0.72rem; color: #999; margin-top: 0.05rem; }
+.roleArrow { margin-left: auto; color: #ccc; font-size: 1rem; }
+.roleItem:hover .roleArrow { color: #ff6a00; }
+
+.roleCheck { margin-left: auto; color: #ff6a00; font-size: 0.9rem; font-weight: 700; }
