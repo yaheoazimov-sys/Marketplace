@@ -13,3 +13,4 @@ export default function AppProviders({ children }: { children: React.ReactNode }
     </AuthProvider>
   );
 }
+

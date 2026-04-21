@@ -26,3 +26,4 @@ function getAdminApp(): admin.app.App {
 export const adminAuth = () => admin.auth(getAdminApp());
 export const adminDb = () => admin.firestore(getAdminApp());
 export const adminStorage = () => admin.storage(getAdminApp());
+

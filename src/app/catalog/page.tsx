@@ -522,3 +522,4 @@ function CatalogContent() {
     </div>
   );
 }
+

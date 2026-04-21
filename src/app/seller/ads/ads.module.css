@@ -77,3 +77,4 @@
 .statusPill { padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
 .deleteBtn { background: none; border: none; color: #ef4444; font-size: 0.75rem; cursor: pointer; font-family: inherit; }
 .deleteBtn:hover { text-decoration: underline; }
+

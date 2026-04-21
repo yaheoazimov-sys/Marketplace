@@ -29,3 +29,4 @@
 .count { font-size: 0.68rem; background: #f0f0f0; color: #888; padding: 0.1rem 0.4rem; border-radius: 50px; flex-shrink: 0; }
 
 .children { display: flex; flex-direction: column; gap: 1px; }
+

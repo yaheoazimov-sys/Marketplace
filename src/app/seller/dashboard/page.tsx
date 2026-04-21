@@ -6,3 +6,4 @@ export default function SellerDashboardRedirect() {
   useEffect(() => { router.replace('/seller'); }, [router]);
   return null;
 }
+

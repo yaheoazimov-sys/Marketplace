@@ -29,7 +29,7 @@ export default function AdminFinancePage() {
 
       <div className={styles.kpiGrid}>
         <div className={styles.kpi}><p className={styles.kpiLabel}>GMV (Total Sales)</p><p className={styles.kpiVal}>${gmv.toLocaleString('en', { minimumFractionDigits: 2 })}</p><p className={styles.kpiSub}>{paid.length} paid orders</p></div>
-        <div className={styles.kpi}><p className={styles.kpiLabel}>Platform Commission (5%)</p><p className={styles.kpiVal} style={{ color: '#ff6a00' }}>${commission.toLocaleString('en', { minimumFractionDigits: 2 })}</p><p className={styles.kpiSub}>Estimated earnings</p></div>
+        <div className={styles.kpi}><p className={styles.kpiLabel}>Platform Commission (5%)</p><p className={styles.kpiVal} style={{ color: '#1e40af' }}>${commission.toLocaleString('en', { minimumFractionDigits: 2 })}</p><p className={styles.kpiSub}>Estimated earnings</p></div>
         <div className={styles.kpi}><p className={styles.kpiLabel}>Avg Order Value</p><p className={styles.kpiVal}>${avgOrder.toFixed(2)}</p><p className={styles.kpiSub}>Per transaction</p></div>
         <div className={styles.kpi}><p className={styles.kpiLabel}>Cancelled Orders</p><p className={styles.kpiVal} style={{ color: '#ef4444' }}>{orders.filter(o => o.status === 'cancelled').length}</p><p className={styles.kpiSub}>Lost revenue: ${orders.filter(o=>o.status==='cancelled').reduce((s,o)=>s+(o.totalAmount||0),0).toFixed(2)}</p></div>
       </div>
@@ -48,7 +48,7 @@ export default function AdminFinancePage() {
                   <td><span className={tStyles.orderId}>#{o.id.slice(0,8).toUpperCase()}</span></td>
                   <td className={tStyles.muted}>{new Date(o.createdAt).toLocaleDateString()}</td>
                   <td className={tStyles.amount}>${Number(o.totalAmount).toFixed(2)}</td>
-                  <td style={{ color: '#ff6a00', fontWeight: 600 }}>${(o.totalAmount * 0.05).toFixed(2)}</td>
+                  <td style={{ color: '#1e40af', fontWeight: 600 }}>${(o.totalAmount * 0.05).toFixed(2)}</td>
                   <td><span className={tStyles.pill} style={{ color: sc(o.status), background: sc(o.status) + '18' }}>{o.status}</span></td>
                 </tr>
               ))}
@@ -59,3 +59,4 @@ export default function AdminFinancePage() {
     </div>
   );
 }
+

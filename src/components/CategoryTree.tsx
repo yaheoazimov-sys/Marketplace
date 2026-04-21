@@ -124,3 +124,4 @@ export function getDescendantIds(categories: Category[], rootId: string): string
   }
   return result;
 }
+

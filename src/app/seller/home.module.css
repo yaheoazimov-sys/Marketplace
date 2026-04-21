@@ -69,3 +69,4 @@
 .pill { padding: 0.15rem 0.5rem; border-radius: 50px; font-size: 0.7rem; font-weight: 600; text-transform: capitalize; }
 
 @media (max-width: 900px) { .page { grid-template-columns: 1fr; } }
+

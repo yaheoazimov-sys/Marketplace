@@ -57,3 +57,4 @@ describe('RBAC Middleware (withAuth)', () => {
     expect(result.error?.status).toBe(403); // Forbidden
   });
 });
+

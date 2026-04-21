@@ -274,3 +274,4 @@ export async function getUser(uid: string): Promise<any | null> {
 export async function updateUser(uid: string, data: Partial<DocumentData>) {
   await updateDoc(doc(db, 'users', uid), data);
 }
+

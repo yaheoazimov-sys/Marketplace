@@ -146,3 +146,4 @@ function friendlyError(code: string): string {
       return 'Something went wrong. Please try again.';
   }
 }
+

@@ -10,3 +10,4 @@
 .dots { display: flex; gap: 0.3rem; justify-content: center; margin-top: 0.4rem; }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: #ddd; border: none; cursor: pointer; transition: background 0.2s; }
 .dotActive { background: #6366f1; }
+

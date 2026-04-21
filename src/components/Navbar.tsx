@@ -174,3 +174,4 @@ export default function Navbar({ search = '', onSearch, dark = false }: NavbarPr
     </header>
   );
 }
+

@@ -47,3 +47,4 @@ export async function withAuth(
     return { error: NextResponse.json({ error: 'Unauthorized', details: err.message }, { status: 401 }) };
   }
 }
+

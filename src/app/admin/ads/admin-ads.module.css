@@ -55,3 +55,4 @@
 .reActionArea { padding: 0.75rem 1.25rem; border-top: 1px solid #f0f0f0; background: #fafafa; }
 .undoBtn { background: none; border: none; color: #888; font-size: 0.78rem; cursor: pointer; font-family: inherit; text-decoration: underline; }
 .undoBtn:hover { color: #333; }
+
