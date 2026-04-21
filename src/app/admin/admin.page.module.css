@@ -1,0 +1,43 @@
+.page { display: flex; flex-direction: column; gap: 1.5rem; }
+.header { }
+.title { font-size: 1.4rem; font-weight: 800; color: #111; letter-spacing: -0.3px; }
+.sub { font-size: 0.82rem; color: #888; margin-top: 0.2rem; }
+
+.kpiGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+.kpi { background: #fff; border: 1px solid #e8eaed; border-radius: 10px; padding: 1.1rem 1.25rem; }
+.kpiLabel { font-size: 0.72rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem; }
+.kpiVal { font-size: 1.75rem; font-weight: 800; color: #111; margin-bottom: 0.2rem; }
+.kpiSub { font-size: 0.72rem; color: #888; }
+.kpiLink { font-size: 0.72rem; color: #ff6a00; }
+
+.quickActions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.qa { display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: #fff; border: 1px solid #e8eaed; border-radius: 8px; font-size: 0.82rem; color: #333; font-weight: 500; transition: all 0.15s; }
+.qa:hover { border-color: #ff6a00; color: #ff6a00; }
+.qaBadge { background: #ff6a00; color: #fff; font-size: 0.65rem; font-weight: 700; padding: 0.1rem 0.35rem; border-radius: 50px; }
+
+.bottomGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.card { background: #fff; border: 1px solid #e8eaed; border-radius: 10px; padding: 1.25rem; }
+.cardHead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.cardTitle { font-size: 0.875rem; font-weight: 700; color: #111; }
+.cardLink { font-size: 0.78rem; color: #ff6a00; }
+.loading { padding: 2rem; text-align: center; color: #888; font-size: 0.875rem; }
+
+.table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.table th { text-align: left; padding: 0.5rem; color: #888; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; border-bottom: 1px solid #f0f0f0; }
+.table td { padding: 0.65rem 0.5rem; border-bottom: 1px solid #f8f8f8; color: #333; }
+.table tr:last-child td { border-bottom: none; }
+.orderId { font-family: monospace; font-size: 0.78rem; color: #ff6a00; font-weight: 600; }
+.muted { color: #888; font-size: 0.78rem; }
+.amount { font-weight: 700; color: #111; }
+.pill { padding: 0.15rem 0.5rem; border-radius: 50px; font-size: 0.7rem; font-weight: 600; text-transform: capitalize; }
+
+.productList { display: flex; flex-direction: column; gap: 0.75rem; }
+.productRow { display: flex; align-items: center; gap: 0.75rem; }
+.rank { font-size: 0.75rem; font-weight: 700; color: #aaa; width: 20px; flex-shrink: 0; }
+.productThumb { width: 36px; height: 36px; object-fit: cover; border-radius: 5px; border: 1px solid #eee; flex-shrink: 0; }
+.productInfo { flex: 1; min-width: 0; }
+.productName { font-size: 0.82rem; font-weight: 500; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.productMeta { font-size: 0.72rem; color: #888; }
+.productRating { font-size: 0.78rem; color: #f59e0b; font-weight: 600; flex-shrink: 0; }
+
+@media (max-width: 900px) { .bottomGrid { grid-template-columns: 1fr; } }

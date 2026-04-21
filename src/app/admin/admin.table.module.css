@@ -1,0 +1,53 @@
+.page { display: flex; flex-direction: column; gap: 1.25rem; }
+.header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.title { font-size: 1.3rem; font-weight: 800; color: #111; letter-spacing: -0.3px; }
+.sub { font-size: 0.82rem; color: #888; margin-top: 0.2rem; }
+.btnPrimary { padding: 0.5rem 1rem; background: #ff6a00; color: #fff; border: none; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+.btnPrimary:hover { background: #e55a00; }
+
+.stats { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.statCard { padding: 0.75rem 1.1rem; background: #fff; border: 1px solid #e8eaed; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.15s; min-width: 80px; }
+.statCard:hover { border-color: #ff6a00; }
+.statCardActive { border-color: #ff6a00 !important; background: #fff8f5 !important; }
+.statVal { display: block; font-size: 1.3rem; font-weight: 800; }
+.statLabel { font-size: 0.7rem; color: #888; text-transform: capitalize; }
+
+.successBanner { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.875rem; }
+.errorBanner { background: #fff0f0; border: 1px solid #fecaca; color: #ef4444; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.875rem; }
+
+.toolbar { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.searchWrap { display: flex; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid #e0e0e0; border-radius: 7px; padding: 0.5rem 0.75rem; flex: 1; min-width: 200px; }
+.searchInput { border: none; background: transparent; outline: none; font-size: 0.875rem; color: #111; width: 100%; font-family: inherit; }
+.select { padding: 0.5rem 0.75rem; border: 1px solid #e0e0e0; border-radius: 7px; background: #fff; color: #333; font-size: 0.82rem; font-family: inherit; outline: none; cursor: pointer; }
+
+.tableCard { background: #fff; border: 1px solid #e8eaed; border-radius: 10px; overflow: hidden; }
+.loading { padding: 3rem; text-align: center; color: #888; font-size: 0.875rem; }
+.empty { text-align: center; color: #aaa; padding: 2rem !important; }
+
+.table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.table th { text-align: left; padding: 0.65rem 0.75rem; background: #f8f9fc; color: #555; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid #eee; }
+.table td { padding: 0.75rem; border-bottom: 1px solid #f5f5f5; color: #333; vertical-align: middle; }
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: #fafafa; }
+
+.userCell { display: flex; align-items: center; gap: 0.65rem; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; }
+.userName { font-size: 0.82rem; font-weight: 600; color: #111; }
+.userEmail { font-size: 0.72rem; color: #888; }
+
+.inlineSelect { border: 1px solid #e0e0e0; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.78rem; font-weight: 600; background: #fafafa; outline: none; cursor: pointer; font-family: inherit; }
+.pill { padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 600; text-transform: capitalize; white-space: nowrap; }
+.muted { color: #888; font-size: 0.78rem; }
+.amount { font-weight: 700; color: #111; }
+.orderId { font-family: monospace; font-size: 0.78rem; color: #ff6a00; font-weight: 600; }
+
+.actions { display: flex; gap: 0.4rem; }
+.btnRed { padding: 0.3rem 0.65rem; background: #fff0f0; color: #ef4444; border: none; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-family: inherit; }
+.btnRed:hover { background: #fee2e2; }
+.btnGreen { padding: 0.3rem 0.65rem; background: #f0fdf4; color: #15803d; border: none; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-family: inherit; }
+.btnGreen:hover { background: #dcfce7; }
+.btnBlue { padding: 0.3rem 0.65rem; background: #eff6ff; color: #1d4ed8; border: none; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-family: inherit; }
+.btnBlue:hover { background: #dbeafe; }
+
+.productCell { display: flex; align-items: center; gap: 0.5rem; }
+.thumb { width: 36px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; flex-shrink: 0; }
