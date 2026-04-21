@@ -21,8 +21,8 @@ export default function AdminSettingsPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {[
           { title: 'General', fields: [
-            { label: 'Platform Name', value: platformName, onChange: setPlatformName, type: 'text' },
-            { label: 'Support Email', value: supportEmail, onChange: setSupportEmail, type: 'email' },
+            { label: 'Platform Name', value: platformName, onChange: setPlatformName, type: 'text', hint: '' },
+            { label: 'Support Email', value: supportEmail, onChange: setSupportEmail, type: 'email', hint: '' },
           ]},
           { title: 'Finance', fields: [
             { label: 'Platform Commission (%)', value: commission, onChange: setCommission, type: 'number', hint: 'Percentage taken from each sale' },
