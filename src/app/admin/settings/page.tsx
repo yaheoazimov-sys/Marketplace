@@ -46,7 +46,7 @@ export default function AdminSettingsPage() {
         <div style={{ background: '#fff', border: '1px solid #e8eaed', borderRadius: 10, padding: '1.25rem' }}>
           <h2 style={{ fontSize: '0.875rem', fontWeight: 700, color: '#111', marginBottom: '1rem' }}>Shipping</h2>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer' }}>
-            <input type="checkbox" checked={freeShipping} onChange={e => setFreeShipping(e.target.checked)} style={{ accentColor: '#1e40af' }} />
+            <input type="checkbox" checked={freeShipping} onChange={e => setFreeShipping(e.target.checked)} style={{ accentColor: '#7c3aed' }} />
             Enable free shipping for all orders
           </label>
         </div>
@@ -63,7 +63,7 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        <button onClick={save} style={{ padding: '0.75rem', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8, fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button onClick={save} style={{ padding: '0.75rem', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
           Save Settings
         </button>
       </div>

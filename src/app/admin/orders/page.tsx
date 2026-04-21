@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase/client';
 import styles from '../admin.table.module.css';
 
 const STATUS_META: Record<string, { color: string }> = {
-  pending: { color: '#92400e' }, confirmed: { color: '#1e40af' }, processing: { color: '#5b21b6' },
+  pending: { color: '#92400e' }, confirmed: { color: '#7c3aed' }, processing: { color: '#5b21b6' },
   shipped: { color: '#065f46' }, delivered: { color: '#14532d' }, cancelled: { color: '#991b1b' },
   paid: { color: '#14532d' }, refunded: { color: '#374151' },
 };

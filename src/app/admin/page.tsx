@@ -47,7 +47,7 @@ export default function AdminDashboardPage() {
     load();
   }, []);
 
-  const sc = (s: string) => ({ paid: '#15803d', delivered: '#15803d', confirmed: '#1e40af', pending: '#92400e', cancelled: '#991b1b', processing: '#5b21b6', shipped: '#065f46' }[s] || '#374151');
+  const sc = (s: string) => ({ paid: '#15803d', delivered: '#15803d', confirmed: '#7c3aed', pending: '#92400e', cancelled: '#991b1b', processing: '#5b21b6', shipped: '#065f46' }[s] || '#374151');
 
   return (
     <div className={styles.page}>

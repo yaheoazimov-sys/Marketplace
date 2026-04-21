@@ -312,7 +312,7 @@
 .roleTitle { font-size: 0.875rem; font-weight: 600; color: #111; }
 .roleSub { font-size: 0.72rem; color: #999; margin-top: 0.05rem; }
 .roleArrow { margin-left: auto; color: #ccc; font-size: 1rem; }
-.roleItem:hover .roleArrow { color: #1e40af; }
+.roleItem:hover .roleArrow { color: #7c3aed; }
 
-.roleCheck { margin-left: auto; color: #1e40af; font-size: 0.9rem; font-weight: 700; }
+.roleCheck { margin-left: auto; color: #7c3aed; font-size: 0.9rem; font-weight: 700; }
 

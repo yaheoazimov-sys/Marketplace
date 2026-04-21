@@ -8,7 +8,7 @@ import styles from './orders.module.css';
 
 const STATUS: Record<string, { label: string; color: string; bg: string }> = {
   pending:    { label: 'Pending',    color: '#92400e', bg: '#fef3c7' },
-  confirmed:  { label: 'Confirmed',  color: '#1e40af', bg: '#dbeafe' },
+  confirmed:  { label: 'Confirmed',  color: '#7c3aed', bg: '#dbeafe' },
   processing: { label: 'Processing', color: '#5b21b6', bg: '#ede9fe' },
   shipped:    { label: 'Shipped',    color: '#065f46', bg: '#d1fae5' },
   delivered:  { label: 'Delivered',  color: '#14532d', bg: '#bbf7d0' },
